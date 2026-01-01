@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-render-black text-white antialiased overflow-x-hidden;
+  }
+}
+
+@layer utilities {
+  .clip-path-slant {
+    clip-path: polygon(0 0, 100% 0, 85% 100%, 0% 100%);
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-render-black;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-stone-800 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-electric-blue;
+}
