@@ -24,8 +24,6 @@ const ProcessScroll = () => {
                     pinSpacing: true,
                     scrub: 1.5, // Smoother scrolling
                     end: () => "+=" + triggerRef.current.offsetWidth * 2,
-                    fastScrollEnd: true,
-                    preventOverlaps: true
                 },
             });
 
@@ -116,18 +114,22 @@ const ProcessScroll = () => {
                 }
             });
 
-            // Reveal Process Title
-            gsap.to('.process-title-reveal', {
-                y: 0,
-                opacity: 1,
+            // Reveal Process Title - Performance: Use from tween for reliability
+            gsap.from('.process-title-reveal', {
+                y: 50,
+                opacity: 0,
                 duration: 1,
                 stagger: 0.2,
                 ease: 'power3.out',
                 scrollTrigger: {
                     trigger: sectionRef.current,
-                    start: 'top 60%',
+                    start: 'top 80%', // Reveal earlier
                 }
             });
+
+            // Ensure triggers are updated for lazy loaded content
+            ScrollTrigger.refresh();
+
 
             // Performance: Reduced rotation speed for HUD ring
             gsap.to('.hud-ring', {
@@ -137,7 +139,7 @@ const ProcessScroll = () => {
                 ease: 'none'
             });
 
-        }, sectionRef);
+        }, sectionRef.current);
 
         return () => ctx.revert();
     }, []);
@@ -199,10 +201,10 @@ const ProcessScroll = () => {
 
                 {/* Intro Text */}
                 <div className="absolute top-12 left-12 z-10 p-8">
-                    <h2 className="process-title-reveal text-electric-blue font-bold tracking-widest uppercase text-xs mb-2 opacity-0 translate-y-8 flex items-center gap-2">
+                    <h2 className="process-title-reveal text-electric-blue font-bold tracking-widest uppercase text-xs mb-2 flex items-center gap-2">
                         <span className="w-8 h-[1px] bg-electric-blue" /> The Workflow
                     </h2>
-                    <h3 className="process-title-reveal text-5xl font-black text-white opacity-0 translate-y-8 leading-tight">
+                    <h3 className="process-title-reveal text-5xl font-black text-white leading-tight">
                         From Request <br /> <span className="text-gray-600">to</span> Render.
                     </h3>
                 </div>

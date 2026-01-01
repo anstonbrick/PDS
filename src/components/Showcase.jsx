@@ -57,8 +57,6 @@ const Showcase = () => {
                     scrub: 1.5, // Increased for smoother scrolling
                     start: 'top top',
                     end: '+=300%',
-                    fastScrollEnd: true, // Performance: Better handling of fast scrolls
-                    preventOverlaps: true
                 }
             });
 
@@ -127,13 +125,16 @@ const Showcase = () => {
                 }, "<")
                 .to(badgesContainerRef.current, { opacity: 0, duration: 0.5 }, "+=0.3");
 
+            // Ensure triggers are updated for lazy loaded content
+            ScrollTrigger.refresh();
+
             // Performance: Cleanup function
             return () => {
                 window.removeEventListener('mousemove', handleMouseMove);
                 if (rafId.current) cancelAnimationFrame(rafId.current);
             };
 
-        }, sectionRef);
+        }, sectionRef.current);
 
         return () => ctx.revert();
     }, []);

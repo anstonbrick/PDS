@@ -23,8 +23,7 @@ gsap.registerPlugin(ScrollTrigger);
 gsap.config({
   force3D: true,
   nullTargetWarn: false,
-  autoSleep: 60,
-  units: { left: "%", top: "%", rotation: "deg" } // Optimization: Pre-define units
+  autoSleep: 60
 });
 
 // Performance: Ticker settings for smoother high-refresh screens
@@ -74,12 +73,18 @@ function App() {
     // Performance: Use passive listener for cursor follower
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
 
+    // Performance: Refresh ScrollTrigger periodically to handle lazy shifts
+    const refreshInterval = setInterval(() => {
+      ScrollTrigger.refresh();
+    }, 2000);
+
     // Performance: Cleanup
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       if (rafId.current) {
         cancelAnimationFrame(rafId.current);
       }
+      clearInterval(refreshInterval);
       ScrollTrigger.getAll().forEach(st => st.kill());
     };
   }, [handleMouseMove]);

@@ -58,11 +58,9 @@ html {
   scroll-padding-top: 80px;
 }
 
-/* Performance: Content Visibility for off-screen sections */
+/* Performance: Content Visibility for off-screen sections - Removed as it breaks pinned animations */
 section {
   contain: layout style paint;
-  content-visibility: auto;
-  contain-intrinsic-size: 1px 1000px;
 }
 
 .reveal-text {
