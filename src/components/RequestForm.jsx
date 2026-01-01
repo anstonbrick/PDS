@@ -82,12 +82,49 @@ const RequestForm = () => {
         }, 300);
     };
 
-    const handleSubmit = (e) => {
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleSubmit = async (e) => {
         if (e) e.preventDefault();
+
+        setIsLoading(true);
         const key = generateKey();
-        setAccessKey(key);
-        setStep(6);
-        // In a real app, you'd send formData to a server here
+
+        // Prepare payload with snake_case to match DB
+        const payload = {
+            access_key: key,
+            operator_name: formData.name,
+            character_name: formData.character,
+            series_source: formData.series,
+            sourcing_vibe: formData.vibe,
+            contact_method: formData.deliveryOption,
+            contact_handle: formData.deliveryOption === 'email' ? formData.email : `${formData.socialPlatform}:${formData.socialHandle}`,
+            notes: formData.notes
+        };
+
+        try {
+            const response = await fetch('http://localhost:3001/api/request', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Submission failed');
+            }
+
+            // critical: Set key only after successful save
+            setAccessKey(key);
+            setStep(6);
+        } catch (error) {
+            console.error('Request Error:', error);
+            alert(`TRANSMISSION_ERROR: ${error.message}`);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleCopyKey = () => {
@@ -428,13 +465,13 @@ const RequestForm = () => {
                         ) : step === 5 ? (
                             <button
                                 onClick={handleSubmit}
-                                disabled={!formData.noAi}
-                                className={`flex-1 font-black py-4 uppercase italic tracking-tighter text-2xl transition-all flex items-center justify-center gap-4 ${formData.noAi
+                                disabled={!formData.noAi || isLoading}
+                                className={`flex-1 font-black py-4 uppercase italic tracking-tighter text-2xl transition-all flex items-center justify-center gap-4 ${formData.noAi && !isLoading
                                     ? 'bg-red-500 text-white hover:bg-white hover:text-black flat-shadow'
                                     : 'bg-gray-800 text-gray-600 cursor-not-allowed border-2 border-gray-700'
                                     }`}
                             >
-                                INITIATE_DROP
+                                {isLoading ? 'TRANSMITTING...' : 'INITIATE_DROP'}
                             </button>
                         ) : (
                             <button
