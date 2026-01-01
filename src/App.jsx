@@ -10,6 +10,9 @@ const ProcessScroll = lazy(() => import('./components/ProcessScroll'));
 const RequestForm = lazy(() => import('./components/RequestForm'));
 const FAB = lazy(() => import('./components/FAB'));
 
+import AuthScreen from './components/Auth/AuthScreen';
+import LoadingScreen from './components/LoadingScreen';
+
 const LoadingFallback = () => (
   <div className="h-20 w-full flex items-center justify-center bg-render-black">
     <div className="w-10 h-[1px] bg-electric-blue animate-pulse" />
@@ -34,6 +37,30 @@ function App() {
   // Performance: Use ref for animation frame tracking
   const rafId = useRef(null);
   const mousePos = useRef({ x: 0, y: 0 });
+
+  // Auth & Loading State
+  // Check local storage for basic persistence
+  const [user, setUser] = React.useState(() => {
+    const saved = localStorage.getItem('pds_user');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  // If user is already logged in, we might still want to show loading screen briefly or skip it?
+  // Request says "make a loading screen after log in". 
+  // If refreshing, maybe show it again? Let's show it on mount if logged in, or after login.
+  const [showLoading, setShowLoading] = React.useState(!!user);
+
+  // If not logged in, showAuth is implied by !user.
+
+  const handleLoginSuccess = (userData) => {
+    localStorage.setItem('pds_user', JSON.stringify(userData));
+    setUser(userData);
+    setShowLoading(true); // Trigger loading screen after successful login
+  };
+
+  const handleLoadingComplete = () => {
+    setShowLoading(false);
+  };
 
   // Performance: Throttled mouse handler using RAF with faster update
   const handleMouseMove = useCallback((e) => {
@@ -89,12 +116,23 @@ function App() {
     };
   }, [handleMouseMove]);
 
+  if (!user) {
+    return (
+      <div className="bg-render-black min-h-screen text-white overflow-hidden font-sans">
+        <div className="grain" />
+        <AuthScreen onLoginSuccess={handleLoginSuccess} />
+      </div>
+    );
+  }
+
   return (
     <div className="bg-render-black min-h-screen text-white selection:bg-electric-blue selection:text-black overflow-x-hidden grid-bg">
       {/* Global Scrollytelling Elements */}
       <div className="grain" />
       <div id="follower" className="fixed w-6 h-6 border-2 border-electric-blue pointer-events-none z-[100] -translate-x-1/2 -translate-y-1/2 hidden lg:block will-change-transform" />
       <div id="scroll-progress" className="fixed top-0 left-0 w-full h-1 bg-electric-blue border-b border-white/20 z-[110] origin-left scale-x-0 will-change-transform" />
+
+      {showLoading && <LoadingScreen onComplete={handleLoadingComplete} />}
 
       <Navbar />
 
