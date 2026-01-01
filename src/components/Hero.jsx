@@ -17,66 +17,64 @@ const Hero = () => {
         const ctx = gsap.context(() => {
             const cards = gsap.utils.toArray('.gallery-card');
 
-            // Performance: Batch card animations with improved settings
-            cards.forEach((card, i) => {
-                gsap.to(card, {
-                    y: -150 - (i * 30),
-                    rotation: card.dataset.rotation * 1.5,
-                    opacity: 0.1,
-                    ease: 'none',
-                    scrollTrigger: {
-                        trigger: containerRef.current,
-                        start: 'top top',
-                        end: 'bottom top',
-                        scrub: 1.5, // Smoother scrubbing
-                        fastScrollEnd: true
-                    }
-                });
-            });
-
-            // Text Parallax and Fade
-            gsap.to(textRef.current, {
-                y: 100,
-                opacity: 0,
+            // Performance: Single ScrollTrigger for all cards using a timeline
+            const mainTl = gsap.timeline({
                 scrollTrigger: {
                     trigger: containerRef.current,
                     start: 'top top',
-                    end: '50% top',
-                    scrub: 1,
-                    fastScrollEnd: true
+                    end: 'bottom top',
+                    scrub: 1, // Reduced scrub for responsiveness
+                    fastScrollEnd: true,
+                    invalidateOnRefresh: true,
                 }
             });
 
-            // Initial Entrance - Performance: Reduced stagger time
-            const tl = gsap.timeline();
-            tl.from('.reveal-item', {
-                y: 100,
+            cards.forEach((card, i) => {
+                mainTl.to(card, {
+                    y: -120 - (i * 20),
+                    rotation: card.dataset.rotation * 1.2,
+                    opacity: 0.15,
+                    ease: 'none',
+                }, 0);
+            });
+
+            mainTl.to(textRef.current, {
+                y: 60,
+                opacity: 0,
+                ease: 'none',
+            }, 0);
+
+            // Initial Entrance - Performance: Simplified stagger
+            gsap.from('.reveal-item', {
+                y: 40,
+                opacity: 0,
+                duration: 0.8,
+                stagger: 0.1,
+                ease: 'power3.out',
+                delay: 0.2
+            });
+
+            gsap.from(galleryRef.current.children, {
+                scale: 0.9,
                 opacity: 0,
                 duration: 1,
-                stagger: 0.15,
-                ease: 'power4.out',
-                delay: 0.3
-            })
-                .from(galleryRef.current.children, {
-                    scale: 0.8,
-                    opacity: 0,
-                    duration: 1.2,
-                    stagger: 0.08,
-                    ease: 'expo.out'
-                }, "-=0.8");
+                stagger: 0.05,
+                ease: 'power2.out',
+                delay: 0.4
+            });
 
         }, containerRef);
 
         return () => ctx.revert();
     }, []);
 
-    // Performance: Memoize static images array
+    // Performance: Selected better source images where possible
     const images = useMemo(() => [
         { src: '/media/walpaper1.jpg', top: '10%', left: '10%', rotation: -5 },
-        { src: '/media/vertical2.png', top: '20%', left: '80%', rotation: 8 },
-        { src: '/media/highres.png', top: '60%', left: '15%', rotation: -12 },
-        { src: '/media/official.png', top: '50%', left: '75%', rotation: 5 },
-        { src: '/media/extra2.jpg', top: '15%', left: '45%', rotation: -3 },
+        { src: '/media/vertical1.jpg', top: '20%', left: '80%', rotation: 8 }, // Switched to smaller jpg
+        { src: '/media/highres2.jpg', top: '60%', left: '15%', rotation: -12 }, // Switched to smaller highres2
+        { src: '/media/horizontal2.jpg', top: '50%', left: '75%', rotation: 5 }, // Switched to smaller horizontal2
+        { src: '/media/extra.jpg', top: '15%', left: '45%', rotation: -3 }, // Switched to smaller jpg
     ], []);
 
     return (
@@ -85,15 +83,16 @@ const Hero = () => {
             id="hero"
             className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20"
         >
-            {/* Background Gradients */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-gray-900 via-render-black to-render-black opacity-80" />
+            {/* Background Gradients - Performance: Simplified for GPU */}
+            <div className="absolute inset-0 bg-render-black" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(20,20,20,0.8)_0%,_rgba(10,10,10,1)_100%)]" />
 
             {/* Floating Gallery Background */}
             <div ref={galleryRef} className="absolute inset-0 w-full h-full pointer-events-none">
                 {images.map((item, index) => (
                     <div
                         key={index}
-                        className="gallery-card absolute rounded-lg shadow-2xl overflow-hidden border border-white/10 opacity-30 px-0 will-change-transform"
+                        className="gallery-card absolute rounded-lg shadow-xl overflow-hidden border border-white/5 opacity-20 px-0 will-change-transform gpu-accelerate"
                         data-rotation={item.rotation}
                         style={{
                             top: item.top,
@@ -107,7 +106,7 @@ const Hero = () => {
                         <img
                             src={item.src}
                             alt={`Gallery ${index}`}
-                            className="w-full h-full object-cover grayscale-[0.5] hover:grayscale-0 transition-all duration-700"
+                            className="w-full h-full object-cover grayscale-[0.3]"
                             loading={index < 2 ? "eager" : "lazy"}
                             decoding="async"
                             fetchpriority={index < 2 ? "high" : "low"}
@@ -115,6 +114,7 @@ const Hero = () => {
                     </div>
                 ))}
             </div>
+
 
             {/* Content */}
             <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">

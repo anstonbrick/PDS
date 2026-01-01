@@ -33,32 +33,36 @@
 
 /* Performance: GPU Layer Hints */
 .gpu-accelerate {
-  transform: translateZ(0);
+  transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
+  perspective: 1000;
 }
 
-/* Grain Texture - Optimized for performance */
+/* Grain Texture - Optimized for performance (Base64 noise is lighter than feTurbulence) */
 .grain {
   position: fixed;
   inset: 0;
   width: 100%;
   height: 100%;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  opacity: 0.04;
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABj8nuAAAABnRSTlMAf0N/f0N/87X97AAAAEFJREFUeNrtlDkOACAMxED8/6fLBRpYpInYInIAtisAALoFAED/AECvAMD0AIBhAYDVAIDVAIDVAIDVAIDVAID9AnN+Anp5N45IAAAAAElFTkSuQmCC");
+  background-repeat: repeat;
+  opacity: 0.03;
   pointer-events: none;
   z-index: 100;
   contain: strict;
-  /* Performance: Reduces animation complexity - static grain is sufficient */
 }
 
 /* Smooth Scroll Layout */
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 80px;
 }
 
 /* Performance: Content Visibility for off-screen sections */
 section {
   contain: layout style paint;
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 1000px;
 }
 
 .reveal-text {
@@ -74,30 +78,40 @@ section {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-
-  html {
-    scroll-behavior: auto;
+    scroll-behavior: auto !important;
   }
 }
 
-/* Performance: Optimize backdrop-blur for lower-end devices */
-@media (max-width: 768px) {
+/* Performance: Optimize backdrop-blur and shadows for performance */
+.backdrop-blur-xl,
+.backdrop-blur-2xl {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+@media (max-width: 1024px) {
 
   .backdrop-blur-xl,
   .backdrop-blur-2xl {
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  .atmosphere-blob {
+    display: none;
+    /* Hide expensive blobs on tablet/mobile */
   }
 }
 
-/* Performance: Will-change hints for animated elements */
+/* Performance: Optimized shadow classes */
+.shadow-2xl {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
 .will-change-transform {
   will-change: transform;
 }
 
-/* Performance: Reduce paint complexity for shadows */
-@supports (box-shadow: 0 0 0 0 oklch(0 0 0)) {
-  .shadow-2xl {
-    box-shadow: 0 25px 50px -12px oklch(0 0 0 / 0.25);
-  }
+.will-change-opacity {
+  will-change: opacity;
 }

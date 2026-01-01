@@ -198,11 +198,10 @@ const Showcase = () => {
         <section ref={sectionRef} id="showcase" className="bg-render-dark relative overflow-hidden z-10">
             <div ref={triggerRef} className="h-screen w-full flex items-center justify-center relative overflow-hidden bg-render-dark">
 
-                {/* Atmospheric Background - Performance: Reduced blur values */}
+                {/* Atmospheric Background - Performance: Optimized for GPU */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <div className="atmosphere-blob absolute -top-[20%] -left-[10%] w-[60vw] h-[60vw] bg-electric-blue/10 blur-[60px] rounded-full mix-blend-screen will-change-transform" />
-                    <div className="atmosphere-blob absolute top-[40%] -right-[10%] w-[50vw] h-[50vw] bg-electric-purple/10 blur-[50px] rounded-full mix-blend-screen will-change-transform" />
-                    <div className="atmosphere-blob absolute bottom-[10%] left-[30%] w-[40vw] h-[40vw] bg-electric-green/5 blur-[35px] rounded-full mix-blend-screen will-change-transform" />
+                    <div className="atmosphere-blob absolute -top-[10%] -left-[10%] w-[50vw] h-[50vw] bg-electric-blue/5 blur-[40px] rounded-full mix-blend-screen will-change-transform gpu-accelerate" />
+                    <div className="atmosphere-blob absolute top-[30%] -right-[5%] w-[40vw] h-[40vw] bg-electric-purple/5 blur-[40px] rounded-full mix-blend-screen will-change-transform gpu-accelerate" />
                 </div>
 
                 {/* Content Container */}
@@ -231,13 +230,13 @@ const Showcase = () => {
                         {/* Phone Container */}
                         <div
                             ref={phoneRef}
-                            className="absolute z-20 w-[220px] md:w-[280px] h-[440px] md:h-[560px] bg-black border-[6px] md:border-[8px] border-gray-800 rounded-[2.5rem] md:rounded-[3rem] shadow-2xl overflow-hidden will-change-transform"
+                            className="absolute z-20 w-[220px] md:w-[280px] h-[440px] md:h-[560px] bg-black border-[6px] md:border-[8px] border-gray-800 rounded-[2.5rem] md:rounded-[3rem] shadow-2xl overflow-hidden will-change-transform gpu-accelerate"
                             style={{ boxShadow: '0 25px 80px rgba(0,0,0,0.6)' }}
                         >
                             {/* Notch */}
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-5 md:h-6 bg-black rounded-b-xl z-20" />
                             <img
-                                src="/media/vertical2.png"
+                                src="/media/vertical1.jpg"
                                 className="w-full h-full object-cover"
                                 alt="Mobile View"
                                 loading="lazy"
@@ -251,7 +250,7 @@ const Showcase = () => {
                         {/* Desktop Container */}
                         <div
                             ref={desktopRef}
-                            className="absolute z-10 w-[500px] md:w-[700px] h-[320px] md:h-[420px] bg-gray-900 border border-gray-700/50 rounded-xl shadow-2xl overflow-hidden will-change-transform flex flex-col"
+                            className="absolute z-10 w-[500px] md:w-[700px] h-[320px] md:h-[420px] bg-gray-900 border border-gray-700/50 rounded-xl shadow-2xl overflow-hidden will-change-transform gpu-accelerate flex flex-col"
                             style={{ boxShadow: '0 30px 100px rgba(0,0,0,0.5)' }}
                         >
                             {/* Browser Header */}
@@ -264,7 +263,7 @@ const Showcase = () => {
                             {/* Screen Content */}
                             <div className="flex-1 relative overflow-hidden">
                                 <img
-                                    src="/media/walpaper4.png"
+                                    src="/media/horizontal2.jpg"
                                     className="w-full h-full object-cover"
                                     alt="Desktop View"
                                     loading="lazy"
@@ -273,6 +272,7 @@ const Showcase = () => {
                                 />
                             </div>
                         </div>
+
                     </div>
 
                     {/* Feature Badges - Floating Experience */}
@@ -280,15 +280,15 @@ const Showcase = () => {
                         ref={badgesContainerRef}
                         className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none opacity-0"
                     >
-                        {/* Performance: Reduced backdrop-blur on mobile */}
+                        {/* Performance: Optimized backdrop-blur for badges */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 px-4">
                             {features.map((feature, index) => (
                                 <div
                                     key={index}
-                                    className={`feature-badge-float bg-render-black/80 backdrop-blur-lg md:backdrop-blur-2xl border border-white/10 p-5 md:p-6 rounded-2xl text-center 
+                                    className={`feature-badge-float bg-render-black/80 backdrop-blur-md border border-white/10 p-5 md:p-6 rounded-2xl text-center 
                                         transform transition-all duration-500 pointer-events-auto cursor-default
                                         hover:border-white/30 hover:scale-105 hover:-translate-y-2
-                                        bg-gradient-to-br ${feature.gradient} will-change-transform`}
+                                        bg-gradient-to-br ${feature.gradient} will-change-transform gpu-accelerate`}
                                     style={{
                                         boxShadow: '0 10px 40px rgba(0,0,0,0.4)',
                                     }}
@@ -310,3 +310,4 @@ const Showcase = () => {
 };
 
 export default Showcase;
+
