@@ -1,25 +1,108 @@
-import React from 'react';
+import React, { Suspense, lazy, useLayoutEffect, useCallback, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
-import VisualProof from './components/VisualProof';
-import ProcessScroll from './components/ProcessScroll';
-import RequestForm from './components/RequestForm';
-import FAB from './components/FAB';
+
+const VisualProof = lazy(() => import('./components/VisualProof'));
+const Showcase = lazy(() => import('./components/Showcase'));
+const ProcessScroll = lazy(() => import('./components/ProcessScroll'));
+const RequestForm = lazy(() => import('./components/RequestForm'));
+const FAB = lazy(() => import('./components/FAB'));
+
+const LoadingFallback = () => (
+  <div className="h-20 w-full flex items-center justify-center bg-render-black">
+    <div className="w-10 h-[1px] bg-electric-blue animate-pulse" />
+  </div>
+);
+
+// Performance: Register plugins once
+gsap.registerPlugin(ScrollTrigger);
+
+// Performance: Optimize GSAP global settings
+gsap.config({
+  force3D: true,
+  nullTargetWarn: false,
+  autoSleep: 60
+});
+
+// Performance: Reduce lag smoothing threshold for better performance
+gsap.ticker.lagSmoothing(500, 33);
 
 function App() {
+  // Performance: Use ref for animation frame tracking
+  const rafId = useRef(null);
+  const mousePos = useRef({ x: 0, y: 0 });
+
+  // Performance: Throttled mouse handler using RAF
+  const handleMouseMove = useCallback((e) => {
+    mousePos.current = { x: e.clientX, y: e.clientY };
+
+    if (rafId.current) return;
+
+    rafId.current = requestAnimationFrame(() => {
+      const follower = document.getElementById('follower');
+      if (follower) {
+        gsap.to(follower, {
+          x: mousePos.current.x,
+          y: mousePos.current.y,
+          duration: 0.5,
+          ease: 'power2.out',
+          overwrite: 'auto'
+        });
+      }
+      rafId.current = null;
+    });
+  }, []);
+
+  useLayoutEffect(() => {
+    // Performance: Optimize scroll progress with reduced scrub
+    gsap.to('#scroll-progress', {
+      scaleX: 1,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: 'body',
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 0.5, // Increased for smoother performance
+      }
+    });
+
+    // Performance: Use passive listener for cursor follower
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+
+    // Performance: Cleanup
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (rafId.current) {
+        cancelAnimationFrame(rafId.current);
+      }
+      ScrollTrigger.getAll().forEach(st => st.kill());
+    };
+  }, [handleMouseMove]);
+
   return (
-    <div className="bg-render-black min-h-screen text-white selection:bg-electric-blue selection:text-black">
+    <div className="bg-render-black min-h-screen text-white selection:bg-electric-blue selection:text-black overflow-x-hidden">
+      {/* Global Scrollytelling Elements */}
+      <div className="grain" />
+      <div id="follower" className="fixed w-8 h-8 rounded-full border border-electric-blue/30 pointer-events-none z-[100] -translate-x-1/2 -translate-y-1/2 hidden lg:block will-change-transform" />
+      <div id="scroll-progress" className="fixed top-0 left-0 w-full h-1 bg-gradient-to-r from-electric-blue to-electric-purple z-[110] origin-left scale-x-0 will-change-transform" />
+
       <Navbar />
 
       <main>
-        {/* Sections will be added here */}
         <Hero />
-        <VisualProof />
-        <ProcessScroll />
+        <Suspense fallback={<LoadingFallback />}>
+          <VisualProof />
+          <Showcase />
+          <ProcessScroll />
+        </Suspense>
       </main>
 
-      <RequestForm />
-      <FAB />
+      <Suspense fallback={null}>
+        <RequestForm />
+        <FAB />
+      </Suspense>
     </div>
   );
 }

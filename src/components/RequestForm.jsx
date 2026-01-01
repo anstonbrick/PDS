@@ -6,7 +6,9 @@ const RequestForm = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
-        name: '', email: '', character: '', series: '', vibe: '', noAi: false
+        name: '', character: '', series: '', vibe: [],
+        deliveryOption: 'email', email: '', socialPlatform: 'discord', socialHandle: '',
+        notes: '', noAi: false
     });
 
     const drawerRef = useRef(null);
@@ -53,7 +55,11 @@ const RequestForm = () => {
         alert("Request Simulated: " + JSON.stringify(formData, null, 2));
         closeDrawer();
         setStep(1);
-        setFormData({ name: '', email: '', character: '', series: '', vibe: '', noAi: false });
+        setFormData({
+            name: '', character: '', series: '', vibe: [],
+            deliveryOption: 'email', email: '', socialPlatform: 'discord', socialHandle: '',
+            notes: '', noAi: false
+        });
     };
 
     return (
@@ -73,11 +79,11 @@ const RequestForm = () => {
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-white/5">
                     <div className="flex items-center gap-2">
-                        <span className="text-electric-blue font-bold text-lg">Step {step}/4</span>
+                        <span className="text-electric-blue font-bold text-lg">Step {step}/5</span>
                         <div className="h-1 w-24 bg-gray-800 rounded-full overflow-hidden">
                             <div
                                 className="h-full bg-electric-blue transition-all duration-300"
-                                style={{ width: `${(step / 4) * 100}%` }}
+                                style={{ width: `${(step / 5) * 100}%` }}
                             />
                         </div>
                     </div>
@@ -92,10 +98,10 @@ const RequestForm = () => {
 
                         {step === 1 && (
                             <>
-                                <h3 className="text-3xl font-black text-white">Who are you?</h3>
+                                <h3 className="text-3xl font-black text-white">The Subject</h3>
                                 <div className="space-y-4">
                                     <div>
-                                        <label className="block text-gray-400 mb-2 font-medium">Name</label>
+                                        <label className="block text-gray-400 mb-2 font-medium">Your Name</label>
                                         <input
                                             type="text"
                                             className="w-full bg-render-black border border-white/10 rounded-lg p-4 text-white focus:border-electric-blue focus:outline-none transition-colors"
@@ -106,24 +112,6 @@ const RequestForm = () => {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-gray-400 mb-2 font-medium">Email</label>
-                                        <input
-                                            type="email"
-                                            className="w-full bg-render-black border border-white/10 rounded-lg p-4 text-white focus:border-electric-blue focus:outline-none transition-colors"
-                                            placeholder="Enter your email"
-                                            value={formData.email}
-                                            onChange={e => setFormData({ ...formData, email: e.target.value })}
-                                        />
-                                    </div>
-                                </div>
-                            </>
-                        )}
-
-                        {step === 2 && (
-                            <>
-                                <h3 className="text-3xl font-black text-white">The Subject</h3>
-                                <div className="space-y-4">
-                                    <div>
                                         <label className="block text-gray-400 mb-2 font-medium">Character Name</label>
                                         <input
                                             type="text"
@@ -131,7 +119,6 @@ const RequestForm = () => {
                                             placeholder="e.g. Lucy Kushinada"
                                             value={formData.character}
                                             onChange={e => setFormData({ ...formData, character: e.target.value })}
-                                            autoFocus
                                         />
                                     </div>
                                     <div>
@@ -148,32 +135,133 @@ const RequestForm = () => {
                             </>
                         )}
 
-                        {step === 3 && (
+                        {step === 2 && (
                             <>
-                                <h3 className="text-3xl font-black text-white">The Vibe</h3>
+                                <h3 className="text-3xl font-black text-white">The Method</h3>
                                 <div className="space-y-4">
-                                    <label className="block text-gray-400 mb-2 font-medium">Select Output Style</label>
+                                    <label className="block text-gray-400 mb-2 font-medium">Select Sourcing Style (Multi-select)</label>
                                     <div className="grid grid-cols-1 gap-3">
-                                        {['Wallpaper 4K', 'Mobile Vertical', 'Sketch / Raw', 'Vibrant Color'].map((opt) => (
-                                            <button
-                                                key={opt}
-                                                type="button"
-                                                onClick={() => setFormData({ ...formData, vibe: opt })}
-                                                className={`p-4 rounded-lg flex items-center justify-between border transition-all ${formData.vibe === opt
+                                        {[
+                                            { id: 'analog', label: 'Analog', desc: 'Manual film scanning & high-grain retrieval' },
+                                            { id: 'digital', label: 'Digital', desc: 'Sourced from verified digital master archives' }
+                                        ].map((opt) => (
+                                            <div key={opt.id} className="space-y-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const current = formData.vibe || [];
+                                                        const next = current.includes(opt.id)
+                                                            ? current.filter(i => i !== opt.id)
+                                                            : [...current, opt.id];
+                                                        setFormData({ ...formData, vibe: next });
+                                                    }}
+                                                    className={`w-full p-4 rounded-lg flex items-center justify-between border transition-all text-left ${(formData.vibe || []).includes(opt.id)
                                                         ? 'bg-electric-blue/10 border-electric-blue text-white'
                                                         : 'bg-render-black border-white/10 text-gray-400 hover:border-white/30'
-                                                    }`}
-                                            >
-                                                {opt}
-                                                {formData.vibe === opt && <Check size={18} className="text-electric-blue" />}
-                                            </button>
+                                                        }`}
+                                                >
+                                                    <div>
+                                                        <div className="font-bold">{opt.label}</div>
+                                                        <div className="text-xs opacity-60">{opt.desc}</div>
+                                                    </div>
+                                                    {(formData.vibe || []).includes(opt.id) && <Check size={18} className="text-electric-blue" />}
+                                                </button>
+
+                                                {opt.id === 'analog' && (formData.vibe || []).includes('analog') && (
+                                                    <div className="flex items-center gap-2 text-amber-500 text-xs px-2 animate-pulse">
+                                                        <AlertCircle size={14} />
+                                                        <span>Analog processing may take 3-5 days longer due to manual verification.</span>
+                                                    </div>
+                                                )}
+                                            </div>
                                         ))}
                                     </div>
                                 </div>
                             </>
                         )}
 
+                        {step === 3 && (
+                            <>
+                                <h3 className="text-3xl font-black text-white">Delivery Options</h3>
+                                <div className="space-y-6">
+                                    <div className="flex gap-4">
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, deliveryOption: 'email' })}
+                                            className={`flex-1 p-4 rounded-lg border transition-all ${formData.deliveryOption === 'email' ? 'bg-electric-blue/10 border-electric-blue text-white' : 'bg-render-black border-white/10 text-gray-400'}`}
+                                        >
+                                            Email
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, deliveryOption: 'social' })}
+                                            className={`flex-1 p-4 rounded-lg border transition-all ${formData.deliveryOption === 'social' ? 'bg-electric-blue/10 border-electric-blue text-white' : 'bg-render-black border-white/10 text-gray-400'}`}
+                                        >
+                                            Contact Social
+                                        </button>
+                                    </div>
+
+                                    {formData.deliveryOption === 'email' ? (
+                                        <div className="space-y-2">
+                                            <label className="block text-gray-400 text-sm">Target Email</label>
+                                            <input
+                                                type="email"
+                                                className="w-full bg-render-black border border-white/10 rounded-lg p-4 text-white focus:border-electric-blue focus:outline-none"
+                                                placeholder="your@email.com"
+                                                value={formData.email}
+                                                onChange={e => setFormData({ ...formData, email: e.target.value })}
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="block text-gray-400 text-sm mb-2">Platform</label>
+                                                <select
+                                                    className="w-full bg-render-black border border-white/10 rounded-lg p-4 text-white focus:border-electric-blue focus:outline-none appearance-none cursor-pointer"
+                                                    value={formData.socialPlatform}
+                                                    onChange={e => setFormData({ ...formData, socialPlatform: e.target.value })}
+                                                >
+                                                    <option value="discord">Discord</option>
+                                                    <option value="facebook">Facebook</option>
+                                                    <option value="other">Other</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-gray-400 text-sm mb-2">Handle / Profile URL</label>
+                                                <input
+                                                    type="text"
+                                                    className="w-full bg-render-black border border-white/10 rounded-lg p-4 text-white focus:border-electric-blue focus:outline-none"
+                                                    placeholder={
+                                                        formData.socialPlatform === 'discord' ? 'username#000' :
+                                                            formData.socialPlatform === 'facebook' ? 'facebook.com/profile---' :
+                                                                'Enter your handle'
+                                                    }
+                                                    value={formData.socialHandle}
+                                                    onChange={e => setFormData({ ...formData, socialHandle: e.target.value })}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </>
+                        )}
+
                         {step === 4 && (
+                            <>
+                                <h3 className="text-3xl font-black text-white">Extra Details</h3>
+                                <div className="space-y-4">
+                                    <label className="block text-gray-400 font-medium">Any notes you want to send us?</label>
+                                    <textarea
+                                        className="w-full bg-render-black border border-white/10 rounded-lg p-4 text-white focus:border-electric-blue focus:outline-none min-h-[200px] resize-none"
+                                        placeholder="Specific poses, lighting, or formatting requests..."
+                                        value={formData.notes}
+                                        onChange={e => setFormData({ ...formData, notes: e.target.value })}
+                                    />
+                                </div>
+                            </>
+                        )}
+
+                        {step === 5 && (
                             <>
                                 <h3 className="text-3xl font-black text-white">Final Check</h3>
                                 <div className="bg-red-500/10 border border-red-500/20 p-6 rounded-xl flex items-start gap-4">
@@ -216,7 +304,7 @@ const RequestForm = () => {
                             </button>
                         )}
 
-                        {step < 4 ? (
+                        {step < 5 ? (
                             <button
                                 onClick={handleNext}
                                 className="flex-1 bg-white text-black font-bold py-4 rounded-lg hover:bg-electric-blue transition-colors flex items-center justify-center gap-2"
@@ -228,8 +316,8 @@ const RequestForm = () => {
                                 onClick={handleSubmit}
                                 disabled={!formData.noAi}
                                 className={`flex-1 font-bold py-4 rounded-lg transition-colors flex items-center justify-center gap-2 ${formData.noAi
-                                        ? 'bg-electric-blue text-black hover:bg-white'
-                                        : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                                    ? 'bg-electric-blue text-black hover:bg-white'
+                                    : 'bg-gray-800 text-gray-500 cursor-not-allowed'
                                     }`}
                             >
                                 Submit Request

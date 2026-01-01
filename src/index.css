@@ -1,11 +1,13 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-@layer base {
-  body {
-    @apply bg-render-black text-white antialiased overflow-x-hidden;
-  }
+@theme {
+  --color-render-black: #0a0a0a;
+  --color-render-dark: #121212;
+  --color-electric-blue: #00f0ff;
+  --color-electric-purple: #bf00ff;
+  --color-electric-green: #00ff41;
+  --font-sans: 'Inter', sans-serif;
+  --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @layer utilities {
@@ -18,12 +20,84 @@
 ::-webkit-scrollbar {
   width: 8px;
 }
+
 ::-webkit-scrollbar-track {
-  @apply bg-render-black;
+  background-color: var(--color-render-black);
 }
+
 ::-webkit-scrollbar-thumb {
-  @apply bg-stone-800 rounded-full;
+  background-color: #292524;
+  /* stone-800 */
+  border-radius: 9999px;
 }
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-electric-blue;
+
+/* Performance: GPU Layer Hints */
+.gpu-accelerate {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Grain Texture - Optimized for performance */
+.grain {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 100;
+  contain: strict;
+  /* Performance: Reduces animation complexity - static grain is sufficient */
+}
+
+/* Smooth Scroll Layout */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Performance: Content Visibility for off-screen sections */
+section {
+  contain: layout style paint;
+}
+
+.reveal-text {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+}
+
+/* Performance: Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Performance: Optimize backdrop-blur for lower-end devices */
+@media (max-width: 768px) {
+
+  .backdrop-blur-xl,
+  .backdrop-blur-2xl {
+    backdrop-filter: blur(8px);
+  }
+}
+
+/* Performance: Will-change hints for animated elements */
+.will-change-transform {
+  will-change: transform;
+}
+
+/* Performance: Reduce paint complexity for shadows */
+@supports (box-shadow: 0 0 0 0 oklch(0 0 0)) {
+  .shadow-2xl {
+    box-shadow: 0 25px 50px -12px oklch(0 0 0 / 0.25);
+  }
 }

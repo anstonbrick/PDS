@@ -1,6 +1,8 @@
 import React from 'react';
 import { Menu, X } from 'lucide-react';
 
+import MagneticButton from './MagneticButton';
+
 const Navbar = () => {
     const [isOpen, setIsOpen] = React.useState(false);
 
@@ -17,14 +19,15 @@ const Navbar = () => {
                     <div className="hidden md:block">
                         <div className="ml-10 flex items-baseline space-x-8">
                             <a href="#hero" className="hover:text-electric-blue transition-colors duration-300 px-3 py-2 rounded-md text-sm font-medium">Start</a>
-                            <a href="#process" className="hover:text-electric-blue transition-colors duration-300 px-3 py-2 rounded-md text-sm font-medium">Process</a>
                             <a href="#quality" className="hover:text-electric-blue transition-colors duration-300 px-3 py-2 rounded-md text-sm font-medium">Quality</a>
-                            <button
+                            <a href="#showcase" className="hover:text-electric-blue transition-colors duration-300 px-3 py-2 rounded-md text-sm font-medium">Showcase</a>
+                            <a href="#process" className="hover:text-electric-blue transition-colors duration-300 px-3 py-2 rounded-md text-sm font-medium">Process</a>
+                            <MagneticButton
                                 className="bg-white text-black hover:bg-electric-blue transition-colors duration-300 px-4 py-2 rounded-full text-sm font-bold"
                                 onClick={() => window.dispatchEvent(new CustomEvent('open-request-drawer'))}
                             >
                                 Get Access
-                            </button>
+                            </MagneticButton>
                         </div>
                     </div>
 
@@ -44,8 +47,9 @@ const Navbar = () => {
                 <div className="md:hidden bg-render-black border-b border-white/10">
                     <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                         <a href="#hero" className="text-gray-300 hover:text-electric-blue block px-3 py-2 rounded-md text-base font-medium">Start</a>
-                        <a href="#process" className="text-gray-300 hover:text-electric-blue block px-3 py-2 rounded-md text-base font-medium">Process</a>
                         <a href="#quality" className="text-gray-300 hover:text-electric-blue block px-3 py-2 rounded-md text-base font-medium">Quality</a>
+                        <a href="#showcase" className="text-gray-300 hover:text-electric-blue block px-3 py-2 rounded-md text-base font-medium">Showcase</a>
+                        <a href="#process" className="text-gray-300 hover:text-electric-blue block px-3 py-2 rounded-md text-base font-medium">Process</a>
                         <button
                             onClick={() => {
                                 setIsOpen(false);
