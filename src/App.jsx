@@ -23,10 +23,12 @@ gsap.registerPlugin(ScrollTrigger);
 gsap.config({
   force3D: true,
   nullTargetWarn: false,
-  autoSleep: 60
+  autoSleep: 60,
+  units: { left: "%", top: "%", rotation: "deg" } // Optimization: Pre-define units
 });
 
-// Performance: Reduce lag smoothing threshold for better performance
+// Performance: Ticker settings for smoother high-refresh screens
+gsap.ticker.fps(120);
 gsap.ticker.lagSmoothing(500, 33);
 
 function App() {
@@ -34,7 +36,7 @@ function App() {
   const rafId = useRef(null);
   const mousePos = useRef({ x: 0, y: 0 });
 
-  // Performance: Throttled mouse handler using RAF
+  // Performance: Throttled mouse handler using RAF with faster update
   const handleMouseMove = useCallback((e) => {
     mousePos.current = { x: e.clientX, y: e.clientY };
 
@@ -46,7 +48,7 @@ function App() {
         gsap.to(follower, {
           x: mousePos.current.x,
           y: mousePos.current.y,
-          duration: 0.5,
+          duration: 0.3, // Faster for responsiveness
           ease: 'power2.out',
           overwrite: 'auto'
         });
@@ -54,6 +56,7 @@ function App() {
       rafId.current = null;
     });
   }, []);
+
 
   useLayoutEffect(() => {
     // Performance: Optimize scroll progress with reduced scrub
