@@ -51,43 +51,44 @@ const Showcase = () => {
             // Performance: Optimized timeline with reduced complexity
             const tl = gsap.timeline({
                 scrollTrigger: {
-                    trigger: triggerRef.current,
+                    trigger: sectionRef.current, // Changed to sectionRef for better stability
                     pin: true,
                     pinSpacing: true,
-                    scrub: 1.5, // Increased for smoother scrolling
+                    scrub: 1, // Smoother, less laggy feel
                     start: 'top top',
-                    end: '+=300%',
+                    end: '+=500%', // Extended significantly to prevent "flash and gone"
+                    anticipatePin: 1, // Prevent jitter
                 }
             });
 
             // SCENE 1: Title Reveal
             tl.fromTo('.showcase-title',
                 { opacity: 0, y: 80, scale: 0.9 },
-                { opacity: 1, y: 0, scale: 1, duration: 1.5, ease: 'power4.out' }
+                { opacity: 1, y: 0, scale: 1, duration: 2, ease: 'power3.out' }
             )
 
                 // SCENE 2: Devices Slide In
                 .fromTo(phoneRef.current,
                     { y: 600, rotation: -15, opacity: 0 },
-                    { y: 0, rotation: -8, opacity: 1, duration: 2, ease: 'power3.out' },
-                    "-=0.5"
+                    { y: 0, rotation: -8, opacity: 1, duration: 3, ease: 'power3.out' },
+                    "-=1"
                 )
                 .fromTo(desktopRef.current,
                     { x: 600, opacity: 0, rotation: 5 },
-                    { x: 0, opacity: 1, rotation: 0, duration: 2, ease: 'power3.out' },
+                    { x: 0, opacity: 1, rotation: 0, duration: 3, ease: 'power3.out' },
                     "<"
                 )
 
                 // SCENE 3: Devices Move Apart, Title Fades
-                .to('.showcase-title', { opacity: 0, y: -80, scale: 0.8, duration: 1 }, "+=0.5")
-                .to(phoneRef.current, { x: -350, rotation: -12, scale: 0.85, duration: 1.5, ease: 'power2.inOut' }, "<")
-                .to(desktopRef.current, { x: 350, scale: 0.85, duration: 1.5, ease: 'power2.inOut' }, "<")
+                .to('.showcase-title', { opacity: 0, y: -80, scale: 0.8, duration: 1.5 }, "+=1")
+                .to(phoneRef.current, { x: -350, rotation: -12, scale: 0.85, duration: 2.5, ease: 'power2.inOut' }, "<")
+                .to(desktopRef.current, { x: 350, scale: 0.85, duration: 2.5, ease: 'power2.inOut' }, "<")
 
                 // SCENE 4: Feature Badges Float In
                 .fromTo(badgesContainerRef.current,
                     { opacity: 0 },
-                    { opacity: 1, duration: 0.5 },
-                    "-=0.5"
+                    { opacity: 1, duration: 1 },
+                    "-=1"
                 )
                 .fromTo('.feature-badge-float',
                     { y: 100, opacity: 0, scale: 0.5, rotation: -10 },
@@ -96,7 +97,7 @@ const Showcase = () => {
                         opacity: 1,
                         scale: 1,
                         rotation: 0,
-                        duration: 1,
+                        duration: 1.5,
                         stagger: 0.2,
                         ease: 'back.out(1.7)'
                     },
@@ -106,24 +107,25 @@ const Showcase = () => {
                 // SCENE 5: Badges Glow Effect
                 .to('.feature-badge-float', {
                     boxShadow: '0 0 40px rgba(0, 240, 255, 0.3)',
-                    duration: 0.8,
+                    duration: 1,
                     stagger: 0.15,
                     ease: 'power2.inOut'
                 })
 
                 // SCENE 6: Exit
                 .to([phoneRef.current, desktopRef.current], {
-                    opacity: 0.2,
+                    opacity: 0,
                     scale: 0.7,
-                    y: 50,
-                    duration: 1
+                    y: 100,
+                    duration: 1.5
                 }, "+=0.5")
                 .to('.feature-badge-float', {
-                    y: -30,
+                    y: -50,
+                    opacity: 0,
                     scale: 1.1,
                     duration: 1
                 }, "<")
-                .to(badgesContainerRef.current, { opacity: 0, duration: 0.5 }, "+=0.3");
+                .to(badgesContainerRef.current, { opacity: 0, duration: 0.5 }, "<");
 
             // Ensure triggers are updated for lazy loaded content
             ScrollTrigger.refresh();
@@ -196,8 +198,8 @@ const Showcase = () => {
     ], []);
 
     return (
-        <section ref={sectionRef} id="showcase" className="bg-render-dark relative overflow-hidden z-10">
-            <div ref={triggerRef} className="h-screen w-full flex items-center justify-center relative overflow-hidden bg-render-dark">
+        <section ref={sectionRef} id="showcase" className="bg-render-dark relative overflow-hidden z-10 min-h-screen flex flex-col justify-center">
+            <div ref={triggerRef} className="w-full h-full flex items-center justify-center relative">
 
                 {/* Atmospheric Background - Performance: Optimized for GPU */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">

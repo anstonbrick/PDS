@@ -19,11 +19,12 @@ const ProcessScroll = () => {
                 xPercent: -100 * (cards.length - 1),
                 ease: 'none',
                 scrollTrigger: {
-                    trigger: triggerRef.current,
+                    trigger: sectionRef.current, // Pin the section wrapper
                     pin: true,
                     pinSpacing: true,
-                    scrub: 1.5, // Smoother scrolling
-                    end: () => "+=" + triggerRef.current.offsetWidth * 2,
+                    scrub: 1, // Smoother scrolling
+                    end: () => "+=" + sectionRef.current.offsetWidth * 4, // Use section width
+                    anticipatePin: 1,
                 },
             });
 
@@ -32,10 +33,10 @@ const ProcessScroll = () => {
                 width: '100%',
                 ease: 'none',
                 scrollTrigger: {
-                    trigger: triggerRef.current,
+                    trigger: sectionRef.current, // Use sectionRef
                     start: 'top top',
-                    end: () => "+=" + triggerRef.current.offsetWidth * 2,
-                    scrub: 2,
+                    end: () => "+=" + sectionRef.current.offsetWidth * 4, // Match the new scroll length
+                    scrub: 1,
                 }
             });
 
@@ -78,21 +79,17 @@ const ProcessScroll = () => {
 
                 // Staggered Content - Performance: simplified toggleActions
                 if (content) {
-                    gsap.fromTo(content,
-                        { y: 40, opacity: 0 },
-                        {
-                            y: 0,
-                            opacity: 1,
-                            duration: 0.6,
-                            ease: 'power3.out',
-                            scrollTrigger: {
-                                trigger: card,
-                                containerAnimation: scrollTween,
-                                start: 'left 100%',
-                                toggleActions: 'play none none reverse'
-                            }
+                    gsap.from(content, {
+                        y: 30,
+                        duration: 0.8,
+                        ease: 'power3.out',
+                        scrollTrigger: {
+                            trigger: card,
+                            containerAnimation: scrollTween,
+                            start: 'left 90%',
+                            toggleActions: 'play none none reverse'
                         }
-                    );
+                    });
                 }
 
                 // Connector Line Drawing
