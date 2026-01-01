@@ -90,11 +90,11 @@ function App() {
   }, [handleMouseMove]);
 
   return (
-    <div className="bg-render-black min-h-screen text-white selection:bg-electric-blue selection:text-black overflow-x-hidden">
+    <div className="bg-render-black min-h-screen text-white selection:bg-electric-blue selection:text-black overflow-x-hidden grid-bg">
       {/* Global Scrollytelling Elements */}
       <div className="grain" />
-      <div id="follower" className="fixed w-8 h-8 rounded-full border border-electric-blue/30 pointer-events-none z-[100] -translate-x-1/2 -translate-y-1/2 hidden lg:block will-change-transform" />
-      <div id="scroll-progress" className="fixed top-0 left-0 w-full h-1 bg-gradient-to-r from-electric-blue to-electric-purple z-[110] origin-left scale-x-0 will-change-transform" />
+      <div id="follower" className="fixed w-6 h-6 border-2 border-electric-blue pointer-events-none z-[100] -translate-x-1/2 -translate-y-1/2 hidden lg:block will-change-transform" />
+      <div id="scroll-progress" className="fixed top-0 left-0 w-full h-1 bg-electric-blue border-b border-white/20 z-[110] origin-left scale-x-0 will-change-transform" />
 
       <Navbar />
 

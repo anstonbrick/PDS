@@ -8,11 +8,52 @@
   --color-electric-green: #00ff41;
   --font-sans: 'Inter', sans-serif;
   --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  /* Flat Motion Graphics Tokens */
+  --border-sharp: 0px;
+  --shadow-flat: 4px 4px 0px rgba(0, 0, 0, 1);
+  --shadow-flat-blue: 4px 4px 0px var(--color-electric-blue);
+  --ease-elastic: cubic-bezier(0.68, -0.6, 0.32, 1.6);
 }
 
 @layer utilities {
   .clip-path-slant {
     clip-path: polygon(0 0, 100% 0, 85% 100%, 0% 100%);
+  }
+
+  .clip-path-box {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+
+  .sharp-edge {
+    border-radius: 0 !important;
+  }
+
+  .flat-shadow {
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 1);
+  }
+
+  .flat-shadow-blue {
+    box-shadow: 4px 4px 0px var(--color-electric-blue);
+  }
+
+  .spring-interact {
+    transition: transform 0.3s var(--ease-elastic);
+  }
+
+  .spring-interact:hover {
+    transform: scale(1.05);
+  }
+
+  .spring-interact:active {
+    transform: scale(0.95);
+  }
+
+  .grid-bg {
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
   }
 }
 
@@ -26,16 +67,15 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #292524;
-  /* stone-800 */
-  border-radius: 9999px;
+  background-color: var(--color-electric-blue);
+  border: 1px solid var(--color-render-black);
+  border-radius: 0;
 }
 
 /* Performance: GPU Layer Hints */
 .gpu-accelerate {
-  transform: translate3d(0, 0, 0);
-  backface-visibility: hidden;
-  perspective: 1000;
+  transform: translateZ(0);
+  will-change: transform, opacity;
 }
 
 /* Grain Texture - Optimized for performance (Base64 noise is lighter than feTurbulence) */
@@ -101,9 +141,20 @@ section {
   }
 }
 
-/* Performance: Optimized shadow classes */
+/* Performance: Optimized shadow classes - Replaced with Flat Shadows */
 .shadow-2xl {
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.8);
+}
+
+.flat-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--color-render-dark);
+  border-radius: 0;
+}
+
+.flat-card:hover {
+  border-color: var(--color-electric-blue);
+  box-shadow: 6px 6px 0px var(--color-electric-blue);
 }
 
 .will-change-transform {

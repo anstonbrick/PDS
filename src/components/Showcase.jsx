@@ -8,309 +8,148 @@ gsap.registerPlugin(ScrollTrigger);
 const Showcase = () => {
     const sectionRef = useRef(null);
     const triggerRef = useRef(null);
-    const textRef = useRef(null);
-    const phoneRef = useRef(null);
-    const desktopRef = useRef(null);
+    const contentRef = useRef(null);
+    const deviceGroupRef = useRef(null);
     const badgesContainerRef = useRef(null);
-    // Performance: Track RAF for throttling
-    const rafId = useRef(null);
-    const mousePos = useRef({ x: 0.5, y: 0.5 });
 
     useLayoutEffect(() => {
         const ctx = gsap.context(() => {
-            const blobs = gsap.utils.toArray('.atmosphere-blob');
-
-            // Performance: Throttled parallax with RAF
-            const updateParallax = () => {
-                const x = (mousePos.current.x - 0.5) * 50;
-                const y = (mousePos.current.y - 0.5) * 50;
-
-                gsap.to(blobs, {
-                    x: (i) => i % 2 === 0 ? x : -x,
-                    y: (i) => i % 2 === 0 ? y : -y,
-                    duration: 2.5, // Slightly longer for smoother feel
-                    ease: 'power2.out',
-                    overwrite: 'auto'
-                });
-                rafId.current = null;
-            };
-
-            const handleMouseMove = (e) => {
-                mousePos.current = {
-                    x: e.clientX / window.innerWidth,
-                    y: e.clientY / window.innerHeight
-                };
-
-                // Performance: Skip if RAF already scheduled
-                if (rafId.current) return;
-                rafId.current = requestAnimationFrame(updateParallax);
-            };
-
-            window.addEventListener('mousemove', handleMouseMove, { passive: true });
-
-            // Performance: Optimized timeline with reduced complexity
             const tl = gsap.timeline({
                 scrollTrigger: {
-                    trigger: sectionRef.current, // Changed to sectionRef for better stability
+                    trigger: sectionRef.current,
                     pin: true,
                     pinSpacing: true,
-                    scrub: 1, // Smoother, less laggy feel
+                    scrub: 1,
                     start: 'top top',
-                    end: '+=500%', // Extended significantly to prevent "flash and gone"
-                    anticipatePin: 1, // Prevent jitter
+                    end: '+=400%',
+                    anticipatePin: 1,
                 }
             });
 
-            // SCENE 1: Title Reveal
-            tl.fromTo('.showcase-title',
-                { opacity: 0, y: 80, scale: 0.9 },
-                { opacity: 1, y: 0, scale: 1, duration: 2, ease: 'power3.out' }
-            )
+            // SCENE 1: Title & Background Entrance
+            tl.from('.showcase-header', {
+                y: 100,
+                opacity: 0,
+                scale: 0.8,
+                duration: 2,
+                ease: 'back.out(2)'
+            })
 
-                // SCENE 2: Devices Slide In
-                .fromTo(phoneRef.current,
-                    { y: 600, rotation: -15, opacity: 0 },
-                    { y: 0, rotation: -8, opacity: 1, duration: 3, ease: 'power3.out' },
-                    "-=1"
-                )
-                .fromTo(desktopRef.current,
-                    { x: 600, opacity: 0, rotation: 5 },
-                    { x: 0, opacity: 1, rotation: 0, duration: 3, ease: 'power3.out' },
-                    "<"
-                )
-
-                // SCENE 3: Devices Move Apart, Title Fades
-                .to('.showcase-title', { opacity: 0, y: -80, scale: 0.8, duration: 1.5 }, "+=1")
-                .to(phoneRef.current, { x: -350, rotation: -12, scale: 0.85, duration: 2.5, ease: 'power2.inOut' }, "<")
-                .to(desktopRef.current, { x: 350, scale: 0.85, duration: 2.5, ease: 'power2.inOut' }, "<")
-
-                // SCENE 4: Feature Badges Float In
-                .fromTo(badgesContainerRef.current,
-                    { opacity: 0 },
-                    { opacity: 1, duration: 1 },
-                    "-=1"
-                )
-                .fromTo('.feature-badge-float',
-                    { y: 100, opacity: 0, scale: 0.5, rotation: -10 },
-                    {
-                        y: 0,
-                        opacity: 1,
-                        scale: 1,
-                        rotation: 0,
-                        duration: 1.5,
-                        stagger: 0.2,
-                        ease: 'back.out(1.7)'
-                    },
-                    "<0.2"
-                )
-
-                // SCENE 5: Badges Glow Effect
-                .to('.feature-badge-float', {
-                    boxShadow: '0 0 40px rgba(0, 240, 255, 0.3)',
-                    duration: 1,
-                    stagger: 0.15,
-                    ease: 'power2.inOut'
-                })
-
-                // SCENE 6: Exit
-                .to([phoneRef.current, desktopRef.current], {
+                // SCENE 2: Badges Cascade
+                .from('.showcase-badge', {
+                    y: 50,
                     opacity: 0,
-                    scale: 0.7,
-                    y: 100,
-                    duration: 1.5
-                }, "+=0.5")
-                .to('.feature-badge-float', {
-                    y: -50,
+                    scale: 0.5,
+                    stagger: 0.2,
+                    duration: 1.5,
+                    ease: 'elastic.out(1, 0.5)'
+                }, '-=1')
+
+                // SCENE 3: Schematic Devices Slide In
+                .from('.device-schematic', {
+                    y: 400,
+                    rotation: (i) => i === 0 ? -15 : 15,
                     opacity: 0,
-                    scale: 1.1,
-                    duration: 1
+                    stagger: 0.3,
+                    duration: 3,
+                    ease: 'power4.out'
+                }, '-=0.5')
+
+                // SCENE 4: Dynamic Expansion
+                .to('.device-desktop', { x: 300, scale: 0.9, duration: 2 }, "+=0.5")
+                .to('.device-mobile', { x: -300, scale: 0.9, rotation: -10, duration: 2 }, "<")
+                .to('.showcase-badge', {
+                    x: (i) => (i % 2 === 0 ? -400 : 400),
+                    opacity: 0.5,
+                    duration: 2
                 }, "<")
-                .to(badgesContainerRef.current, { opacity: 0, duration: 0.5 }, "<");
 
-            // Ensure triggers are updated for lazy loaded content
-            ScrollTrigger.refresh();
-
-            // Performance: Cleanup function
-            return () => {
-                window.removeEventListener('mousemove', handleMouseMove);
-                if (rafId.current) cancelAnimationFrame(rafId.current);
-            };
+                // SCENE 5: Final Exit
+                .to(contentRef.current, {
+                    opacity: 0,
+                    y: -100,
+                    duration: 2,
+                    ease: 'power2.in'
+                }, "+=0.5");
 
         }, sectionRef.current);
 
         return () => ctx.revert();
     }, []);
 
-    // Performance: Throttled text decoder with RAF
-    const decodeText = useCallback((e) => {
-        const target = e.target;
-        const originalText = target.dataset.value;
-        if (!originalText) return;
-
-        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        let iteration = 0;
-
-        if (target.interval) clearInterval(target.interval);
-
-        target.interval = setInterval(() => {
-            target.innerText = originalText
-                .split("")
-                .map((letter, index) => {
-                    if (index < iteration) return originalText[index];
-                    return letters[Math.floor(Math.random() * 26)];
-                })
-                .join("");
-
-            if (iteration >= originalText.length) {
-                clearInterval(target.interval);
-            }
-
-            iteration += 1 / 3;
-        }, 40); // Slightly slower interval for performance
-    }, []);
-
-    // Performance: Memoize features array
     const features = useMemo(() => [
-        {
-            icon: <Maximize className="w-10 h-10 text-electric-blue" />,
-            title: "Native 4K",
-            desc: "Lossless Quality",
-            gradient: "from-electric-blue/20 to-transparent"
-        },
-        {
-            icon: <ShieldCheck className="w-10 h-10 text-electric-green" />,
-            title: "100% Human",
-            desc: "Strictly No AI",
-            gradient: "from-electric-green/20 to-transparent"
-        },
-        {
-            icon: <Layers className="w-10 h-10 text-electric-purple" />,
-            title: "Multi-Format",
-            desc: "Any Aspect Ratio",
-            gradient: "from-electric-purple/20 to-transparent"
-        },
-        {
-            icon: <Sparkles className="w-10 h-10 text-pink-500" />,
-            title: "Curated",
-            desc: "Hand-Picked Selection",
-            gradient: "from-pink-500/20 to-transparent"
-        }
+        { icon: <Maximize size={32} />, title: "NATIVE 4K", color: "bg-electric-blue" },
+        { icon: <ShieldCheck size={32} />, title: "100% HUMAN", color: "bg-electric-purple" },
+        { icon: <Layers size={32} />, title: "MULTI-FORMAT", color: "bg-electric-green" },
+        { icon: <Sparkles size={32} />, title: "CURATED", color: "bg-white" }
     ], []);
 
     return (
-        <section ref={sectionRef} id="showcase" className="bg-render-dark relative overflow-hidden z-10 min-h-screen flex flex-col justify-center">
-            <div ref={triggerRef} className="w-full h-full flex items-center justify-center relative">
+        <section ref={sectionRef} id="showcase" className="bg-render-black relative overflow-hidden min-h-screen border-b-4 border-black">
+            <div ref={contentRef} className="relative z-10 w-full h-full max-w-7xl mx-auto px-4 flex flex-col items-center justify-center pt-20">
 
-                {/* Atmospheric Background - Performance: Optimized for GPU */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <div className="atmosphere-blob absolute -top-[10%] -left-[10%] w-[50vw] h-[50vw] bg-electric-blue/5 blur-[40px] rounded-full mix-blend-screen will-change-transform gpu-accelerate" />
-                    <div className="atmosphere-blob absolute top-[30%] -right-[5%] w-[40vw] h-[40vw] bg-electric-purple/5 blur-[40px] rounded-full mix-blend-screen will-change-transform gpu-accelerate" />
+                {/* Header Section */}
+                <div className="showcase-header text-center mb-16 relative z-20">
+                    <span className="inline-block px-3 py-1 bg-white text-black font-black uppercase text-xs mb-4 border-2 border-black flat-shadow">
+                        GALLERY ENGINE v2.0
+                    </span>
+                    <h1 className="text-6xl md:text-9xl font-black text-white italic uppercase leading-[0.85]">
+                        ANY FORMAT.<br />
+                        <span className="text-electric-blue">NO LIMITS.</span>
+                    </h1>
                 </div>
 
-                {/* Content Container */}
-                <div className="relative z-10 w-full h-full max-w-7xl mx-auto px-4 flex flex-col items-center justify-center">
+                {/* Grid of Badges */}
+                <div ref={badgesContainerRef} className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-20 w-full max-w-5xl">
+                    {features.map((f, i) => (
+                        <div key={i} className="showcase-badge bg-render-dark border-4 border-black flat-shadow p-6 flex flex-col items-center text-center group transition-colors hover:bg-render-black">
+                            <div className={`${f.color} text-black p-4 mb-4 border-2 border-black rotate-3 group-hover:rotate-0 transition-transform`}>
+                                {f.icon}
+                            </div>
+                            <h4 className="text-white font-black text-lg uppercase italic tracking-tighter">{f.title}</h4>
+                        </div>
+                    ))}
+                </div>
 
-                    {/* Scene 1 Text */}
-                    <div ref={textRef} className="showcase-title text-center mb-12 relative z-20">
-                        <h2
-                            onMouseEnter={decodeText}
-                            data-value="ELITE COLLECTION"
-                            className="text-electric-blue font-bold tracking-[0.3em] text-sm md:text-base cursor-default"
-                        >
-                            ELITE COLLECTION
-                        </h2>
-                        <h1 className="text-5xl md:text-7xl font-black text-white mt-4 leading-tight">
-                            Tailored for <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500">
-                                Every Screen.
-                            </span>
-                        </h1>
+                {/* Device Stage */}
+                <div ref={deviceGroupRef} className="relative w-full h-[400px] flex items-center justify-center">
+
+                    {/* Desktop Schematic */}
+                    <div className="device-schematic device-desktop absolute z-10 w-[600px] h-[350px] bg-render-dark border-4 border-white flat-shadow flex flex-col overflow-hidden">
+                        <div className="h-8 border-b-2 border-white flex items-center px-4 gap-2 bg-white/5">
+                            <div className="w-2 h-2 rounded-full bg-white/20" />
+                            <div className="w-2 h-2 rounded-full bg-white/20" />
+                            <div className="w-2 h-2 rounded-full bg-white/20" />
+                            <div className="ml-auto text-[10px] font-black text-white/30 uppercase tracking-[0.2em] italic">schematic_view_4k</div>
+                        </div>
+                        <div className="flex-1 relative p-4">
+                            <div className="absolute inset-0 border-4 border-electric-blue/20 m-4 pointer-events-none" />
+                            <img src="/media/horizontal2.jpg" alt="" className="w-full h-full object-cover grayscale brightness-50 contrast-125" />
+                        </div>
                     </div>
 
-                    {/* Device Simulation Stage */}
-                    <div className="relative w-full h-[55vh] flex items-center justify-center">
-
-                        {/* Phone Container */}
-                        <div
-                            ref={phoneRef}
-                            className="absolute z-20 w-[220px] md:w-[280px] h-[440px] md:h-[560px] bg-black border-[6px] md:border-[8px] border-gray-800 rounded-[2.5rem] md:rounded-[3rem] shadow-2xl overflow-hidden will-change-transform gpu-accelerate"
-                            style={{ boxShadow: '0 25px 80px rgba(0,0,0,0.6)' }}
-                        >
-                            {/* Notch */}
-                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-5 md:h-6 bg-black rounded-b-xl z-20" />
-                            <img
-                                src="/media/vertical1.jpg"
-                                className="w-full h-full object-cover"
-                                alt="Mobile View"
-                                loading="lazy"
-                                decoding="async"
-                                fetchpriority="low"
-                            />
-                            {/* Home Indicator */}
-                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-12 h-1 bg-white/30 rounded-full" />
-                        </div>
-
-                        {/* Desktop Container */}
-                        <div
-                            ref={desktopRef}
-                            className="absolute z-10 w-[500px] md:w-[700px] h-[320px] md:h-[420px] bg-gray-900 border border-gray-700/50 rounded-xl shadow-2xl overflow-hidden will-change-transform gpu-accelerate flex flex-col"
-                            style={{ boxShadow: '0 30px 100px rgba(0,0,0,0.5)' }}
-                        >
-                            {/* Browser Header */}
-                            <div className="h-7 md:h-8 bg-black/60 border-b border-white/5 flex items-center px-3 md:px-4 gap-2">
-                                <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-red-500/60" />
-                                <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-yellow-500/60" />
-                                <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-green-500/60" />
-                                <div className="ml-3 h-3.5 w-48 md:w-64 bg-white/5 rounded-full" />
+                    {/* Mobile Schematic */}
+                    <div className="device-schematic device-mobile absolute z-20 w-[240px] h-[480px] bg-render-dark border-4 border-electric-blue flat-shadow-blue flex flex-col overflow-hidden -rotate-6">
+                        <div className="absolute top-4 left-1/2 -translate-x-1/2 w-20 h-4 border-2 border-electric-blue rounded-full bg-render-black" />
+                        <div className="flex-1 p-3 pt-12">
+                            <div className="w-full h-full border-2 border-white/10 relative overflow-hidden">
+                                <img src="/media/vertical1.jpg" alt="" className="w-full h-full object-cover" />
+                                <div className="absolute inset-0 bg-electric-blue/10 pointer-events-none" />
                             </div>
-                            {/* Screen Content */}
-                            <div className="flex-1 relative overflow-hidden">
-                                <img
-                                    src="/media/horizontal2.jpg"
-                                    className="w-full h-full object-cover"
-                                    alt="Desktop View"
-                                    loading="lazy"
-                                    decoding="async"
-                                    fetchpriority="low"
-                                />
-                            </div>
-                        </div>
-
-                    </div>
-
-                    {/* Feature Badges - Floating Experience */}
-                    <div
-                        ref={badgesContainerRef}
-                        className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none opacity-0"
-                    >
-                        {/* Performance: Optimized backdrop-blur for badges */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 px-4">
-                            {features.map((feature, index) => (
-                                <div
-                                    key={index}
-                                    className={`feature-badge-float bg-render-black/80 backdrop-blur-md border border-white/10 p-5 md:p-6 rounded-2xl text-center 
-                                        transform transition-all duration-500 pointer-events-auto cursor-default
-                                        hover:border-white/30 hover:scale-105 hover:-translate-y-2
-                                        bg-gradient-to-br ${feature.gradient} will-change-transform gpu-accelerate`}
-                                    style={{
-                                        boxShadow: '0 10px 40px rgba(0,0,0,0.4)',
-                                    }}
-                                >
-                                    <div className="mb-3 flex justify-center">
-                                        {feature.icon}
-                                    </div>
-                                    <h4 className="text-white font-bold text-lg">{feature.title}</h4>
-                                    <p className="text-xs text-gray-400 mt-1">{feature.desc}</p>
-                                </div>
-                            ))}
                         </div>
                     </div>
 
                 </div>
+
+                {/* Decorative Elements */}
+                <div className="absolute top-1/2 left-10 -translate-y-1/2 hidden lg:block opacity-20">
+                    <div className="text-[120px] font-black text-white/10 select-none uppercase italic leading-none">01</div>
+                    <div className="text-[120px] font-black text-white/10 select-none uppercase italic leading-none ml-20 mt-10">02</div>
+                </div>
+
             </div>
         </section>
     );
 };
 
 export default Showcase;
-

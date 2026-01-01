@@ -10,57 +10,66 @@ gsap.registerPlugin(ScrollTrigger);
 const Hero = () => {
     const containerRef = useRef(null);
     const textRef = useRef(null);
-    const galleryRef = useRef(null);
+    const shapesRef = useRef(null);
+    const gridRef = useRef(null);
     const decodeText = useTextDecrypter();
+
+    const images = useMemo(() => [
+        { src: '/media/walpaper1.jpg', span: 'col-span-1 row-span-1' },
+        { src: '/media/vertical1.jpg', span: 'col-span-1 row-span-2' },
+        { src: '/media/highres2.jpg', span: 'col-span-2 row-span-1' },
+        { src: '/media/horizontal2.jpg', span: 'col-span-1 row-span-1' },
+        { src: '/media/extra.jpg', span: 'col-span-1 row-span-1' },
+    ], []);
 
     useLayoutEffect(() => {
         const ctx = gsap.context(() => {
-            const cards = gsap.utils.toArray('.gallery-card');
+            // Entrance Animation
+            const tl = gsap.timeline();
 
-            // Performance: Single ScrollTrigger for all cards using a timeline
-            const mainTl = gsap.timeline({
+            tl.from('.grid-item', {
+                y: 100,
+                opacity: 0,
+                duration: 0.8,
+                stagger: 0.05,
+                ease: 'back.out(1.7)',
+            })
+                .from('.hero-text', {
+                    x: -50,
+                    opacity: 0,
+                    duration: 0.6,
+                    stagger: 0.1,
+                    ease: 'power3.out',
+                }, '-=0.4')
+                .from('.accent-shape', {
+                    scale: 0,
+                    duration: 0.6,
+                    stagger: 0.1,
+                    ease: 'elastic.out(1, 0.5)',
+                }, '-=0.3');
+
+            // Scroll Animation: Grid Distortion
+            gsap.to('.grid-item', {
                 scrollTrigger: {
                     trigger: containerRef.current,
                     start: 'top top',
                     end: 'bottom top',
-                    scrub: 1, // Reduced scrub for responsiveness
-                    fastScrollEnd: true,
-                    invalidateOnRefresh: true,
-                }
-            });
-
-            cards.forEach((card, i) => {
-                mainTl.to(card, {
-                    y: -120 - (i * 20),
-                    rotation: card.dataset.rotation * 1.2,
-                    opacity: 0.15,
-                    ease: 'none',
-                }, 0);
-            });
-
-            mainTl.to(textRef.current, {
-                y: 60,
-                opacity: 0,
+                    scrub: true,
+                },
+                y: (i) => i % 2 === 0 ? -100 : 100,
+                rotation: (i) => i % 2 === 0 ? 5 : -5,
                 ease: 'none',
-            }, 0);
-
-            // Initial Entrance - Performance: Simplified stagger
-            gsap.from('.reveal-item', {
-                y: 40,
-                opacity: 0,
-                duration: 0.8,
-                stagger: 0.1,
-                ease: 'power3.out',
-                delay: 0.2
             });
 
-            gsap.from(galleryRef.current.children, {
-                scale: 0.9,
-                opacity: 0,
-                duration: 1,
-                stagger: 0.05,
-                ease: 'power2.out',
-                delay: 0.4
+            // Parallax accent shapes
+            gsap.to('.accent-shape', {
+                scrollTrigger: {
+                    trigger: containerRef.current,
+                    scrub: 1,
+                },
+                y: -200,
+                rotation: 180,
+                ease: 'none',
             });
 
         }, containerRef);
@@ -68,102 +77,89 @@ const Hero = () => {
         return () => ctx.revert();
     }, []);
 
-    // Performance: Selected better source images where possible
-    const images = useMemo(() => [
-        { src: '/media/walpaper1.jpg', top: '10%', left: '10%', rotation: -5 },
-        { src: '/media/vertical1.jpg', top: '20%', left: '80%', rotation: 8 }, // Switched to smaller jpg
-        { src: '/media/highres2.jpg', top: '60%', left: '15%', rotation: -12 }, // Switched to smaller highres2
-        { src: '/media/horizontal2.jpg', top: '50%', left: '75%', rotation: 5 }, // Switched to smaller horizontal2
-        { src: '/media/extra.jpg', top: '15%', left: '45%', rotation: -3 }, // Switched to smaller jpg
-    ], []);
-
     return (
         <section
             ref={containerRef}
             id="hero"
-            className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20"
+            className="relative min-h-[110vh] flex items-center justify-center overflow-hidden bg-render-black pt-20"
         >
-            {/* Background Gradients - Performance: Simplified for GPU */}
-            <div className="absolute inset-0 bg-render-black" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(20,20,20,0.8)_0%,_rgba(10,10,10,1)_100%)]" />
-
-            {/* Floating Gallery Background */}
-            <div ref={galleryRef} className="absolute inset-0 w-full h-full pointer-events-none">
-                {images.map((item, index) => (
-                    <div
-                        key={index}
-                        className="gallery-card absolute rounded-lg shadow-xl overflow-hidden border border-white/5 opacity-20 px-0 will-change-transform gpu-accelerate"
-                        data-rotation={item.rotation}
-                        style={{
-                            top: item.top,
-                            left: item.left,
-                            width: '240px',
-                            height: '340px',
-                            transform: `rotate(${item.rotation}deg)`,
-                            contain: 'layout paint style'
-                        }}
-                    >
-                        <img
-                            src={item.src}
-                            alt={`Gallery ${index}`}
-                            className="w-full h-full object-cover grayscale-[0.3]"
-                            loading={index < 2 ? "eager" : "lazy"}
-                            decoding="async"
-                            fetchpriority={index < 2 ? "high" : "low"}
-                        />
-                    </div>
-                ))}
+            {/* Geometric Accent Shapes */}
+            <div ref={shapesRef} className="absolute inset-0 pointer-events-none overflow-hidden">
+                <div className="accent-shape absolute top-1/4 left-10 w-32 h-32 bg-electric-blue/10 border-4 border-electric-blue -rotate-12" />
+                <div className="accent-shape absolute top-3/4 right-20 w-48 h-48 bg-electric-purple/10 border-4 border-electric-purple rotate-45" />
+                <div className="accent-shape absolute bottom-20 left-1/3 w-16 h-16 bg-electric-green border-2 border-black flat-shadow" />
             </div>
 
-
-            {/* Content */}
-            <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-                <div ref={textRef} className="space-y-6">
-                    <h2
-                        className="reveal-item text-electric-blue font-bold tracking-widest uppercase text-sm cursor-default"
-                        data-value="High-Definition Anime Curation"
-                        onMouseEnter={decodeText}
-                    >
-                        High-Definition Anime Curation
-                    </h2>
-                    <h1 className="reveal-item text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-none">
-                        Visuals with <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500">
-                            Soul. Delivered.
+            <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
+                {/* Text Content */}
+                <div ref={textRef} className="space-y-8 order-2 lg:order-1">
+                    <div className="hero-text">
+                        <span
+                            className="inline-block px-4 py-1 bg-electric-blue text-black font-black uppercase tracking-widest text-xs mb-4 border-2 border-black flat-shadow cursor-pointer"
+                            onMouseEnter={decodeText}
+                            data-value="CURATED VISUALS"
+                        >
+                            CURATED VISUALS
                         </span>
-                    </h1>
-                    <p className="reveal-item text-gray-400 text-lg md:text-xl max-w-2xl mx-auto pt-4 leading-relaxed">
-                        Wide range of characters and styles in crystalline 4K.
-                        From official illustrations to rare boutique sketches—manually verified,
-                        multiple aspect ratios, <span className="text-white font-bold underline decoration-electric-blue/50 decoration-2 underline-offset-4">strictly no AI.</span>
+                        <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.9] uppercase italic">
+                            Visuals <br />
+                            <span className="text-electric-blue">With Soul.</span>
+                        </h1>
+                    </div>
+
+                    <p className="hero-text text-gray-400 text-lg md:text-xl max-w-xl leading-snug font-medium italic">
+                        The definitive source for crystalline 4K anime curation.
+                        Manually verified, strictly no AI, pure human artistry.
                     </p>
-                    <div className="pt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+
+                    <div className="hero-text pt-4 flex flex-wrap gap-4">
                         <MagneticButton
                             onClick={() => window.dispatchEvent(new CustomEvent('open-request-drawer'))}
-                            className="group relative px-8 py-4 bg-white text-black font-bold rounded-full overflow-hidden hover:bg-electric-blue transition-colors duration-300"
+                            className="bg-white text-black px-8 py-5 text-xl font-black uppercase border-4 border-black flat-shadow-blue hover:translate-x-[-4px] hover:translate-y-[-4px] hover:shadow-[12px_12px_0px_var(--color-electric-blue)] transition-all flex items-center gap-3 active:translate-x-0 active:translate-y-0 active:shadow-none"
                         >
-                            <div className="absolute inset-0 w-full h-full bg-electric-blue translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                            <span className="relative flex items-center gap-2 group-hover:text-black">
-                                Start Request <ArrowRight size={20} />
-                            </span>
+                            Start Request <ArrowRight size={24} strokeWidth={3} />
                         </MagneticButton>
                         <a
                             href="#process"
-                            className="text-gray-400 hover:text-white transition-colors duration-300 text-sm font-medium underline-offset-4 hover:underline"
+                            className="px-8 py-5 text-xl font-black uppercase border-4 border-white/20 hover:border-white transition-colors flex items-center italic"
                         >
                             How it works
                         </a>
                     </div>
                 </div>
-            </div>
 
-            {/* Scroll Indicator */}
-            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce text-gray-600">
-                <div className="w-6 h-10 border-2 border-gray-600 rounded-full flex justify-center p-1">
-                    <div className="w-1 h-3 bg-gray-600 rounded-full" />
+                {/* 2D Motion Grid */}
+                <div ref={gridRef} className="order-1 lg:order-2 grid grid-cols-2 gap-4 h-[500px] md:h-[600px]">
+                    {images.map((img, i) => (
+                        <div
+                            key={i}
+                            className={`grid-item relative overflow-hidden border-4 border-black flat-shadow bg-render-dark ${img.span}`}
+                        >
+                            <img
+                                src={img.src}
+                                alt=""
+                                className="w-full h-full object-cover grayscale-[0.2] hover:grayscale-0 transition-all duration-500 scale-105 hover:scale-110"
+                            />
+                            <div className="absolute inset-0 bg-electric-blue/10 pointer-events-none" />
+                        </div>
+                    ))}
                 </div>
             </div>
 
+            {/* Scroll Indicator - Flat style */}
+            <div className="absolute bottom-10 left-10 flex flex-col items-center gap-2">
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] rotate-90 origin-left ml-4 text-electric-blue">Scroll</span>
+                <div className="w-1 h-20 bg-white/10 relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1/2 bg-electric-blue animate-[scroll-hint_2s_ease-in-out_infinite]" />
+                </div>
+            </div>
+
+            <style>{`
+                @keyframes scroll-hint {
+                    0% { transform: translateY(-100%); }
+                    100% { transform: translateY(200%); }
+                }
+            `}</style>
         </section>
     );
 };
