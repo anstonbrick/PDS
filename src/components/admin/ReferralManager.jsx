@@ -17,7 +17,7 @@ const ReferralManager = () => {
     const fetchCodes = async () => {
         try {
             const token = localStorage.getItem('adminToken');
-            const response = await fetch('http://localhost:3001/api/admin/referrals', {
+            const response = await fetch('/api/admin/referrals', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
@@ -40,7 +40,7 @@ const ReferralManager = () => {
         setError('');
         try {
             const token = localStorage.getItem('adminToken');
-            const response = await fetch('http://localhost:3001/api/admin/referrals', {
+            const response = await fetch('/api/admin/referrals', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ const ReferralManager = () => {
         if (!window.confirm('Are you sure you want to delete this code?')) return;
         try {
             const token = localStorage.getItem('adminToken');
-            const response = await fetch(`http://localhost:3001/api/admin/referrals/${id}`, {
+            const response = await fetch(`/api/admin/referrals/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -83,7 +83,7 @@ const ReferralManager = () => {
         setSelectedCodeUsers(null);
         try {
             const token = localStorage.getItem('adminToken');
-            const response = await fetch(`http://localhost:3001/api/admin/referrals/${id}/users`, {
+            const response = await fetch(`/api/admin/referrals/${id}/users`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {

@@ -8,7 +8,7 @@ const UsersTable = () => {
         const fetchUsers = async () => {
             try {
                 const token = localStorage.getItem('adminToken');
-                const response = await fetch('http://localhost:3001/api/admin/users', {
+                const response = await fetch('/api/admin/users', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (response.ok) {

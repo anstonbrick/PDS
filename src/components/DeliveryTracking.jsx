@@ -20,7 +20,7 @@ const DeliveryTracking = () => {
         try {
             // Encode the key to handle any existing keys with special characters
             const safeKey = encodeURIComponent(accessKey.trim());
-            const response = await fetch(`http://localhost:3001/api/tracking/${safeKey}`);
+            const response = await fetch(`/api/tracking/${safeKey}`);
             const data = await response.json();
 
             if (response.ok) {

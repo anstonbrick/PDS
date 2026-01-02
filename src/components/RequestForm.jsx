@@ -104,7 +104,7 @@ const RequestForm = () => {
         };
 
         try {
-            const response = await fetch('http://localhost:3001/api/request', {
+            const response = await fetch('/api/request', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

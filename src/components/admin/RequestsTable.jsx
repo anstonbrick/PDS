@@ -7,7 +7,7 @@ const RequestsTable = () => {
     const fetchRequests = async () => {
         try {
             const token = localStorage.getItem('adminToken');
-            const response = await fetch('http://localhost:3001/api/admin/requests', {
+            const response = await fetch('/api/admin/requests', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
@@ -28,7 +28,7 @@ const RequestsTable = () => {
     const updateStatus = async (id, newStatus) => {
         try {
             const token = localStorage.getItem('adminToken');
-            await fetch(`http://localhost:3001/api/admin/requests/${id}/status`, {
+            await fetch(`/api/admin/requests/${id}/status`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -64,9 +64,9 @@ const RequestsTable = () => {
                                 <tr key={req.id} className="hover:bg-zinc-800/30 transition-colors">
                                     <td className="px-6 py-4">
                                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${req.status === 'completed' ? 'bg-green-500/10 text-green-500' :
-                                                req.status === 'rejected' ? 'bg-red-500/10 text-red-500' :
-                                                    req.status === 'processing' ? 'bg-blue-500/10 text-blue-500' :
-                                                        'bg-yellow-500/10 text-yellow-500'
+                                            req.status === 'rejected' ? 'bg-red-500/10 text-red-500' :
+                                                req.status === 'processing' ? 'bg-blue-500/10 text-blue-500' :
+                                                    'bg-yellow-500/10 text-yellow-500'
                                             }`}>
                                             {req.status}
                                         </span>

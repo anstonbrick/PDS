@@ -9,7 +9,7 @@ const DashboardHome = () => {
         const fetchStats = async () => {
             try {
                 const token = localStorage.getItem('adminToken');
-                const response = await fetch('http://localhost:3001/api/admin/stats', {
+                const response = await fetch('/api/admin/stats', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (response.ok) {
