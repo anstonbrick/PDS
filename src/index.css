@@ -16,9 +16,9 @@
   --ease-elastic: cubic-bezier(0.68, -0.6, 0.32, 1.6);
 
   /* Fluid Typography */
-  --text-fluid-h1: clamp(2.5rem, 8vw, 6rem);
-  --text-fluid-h2: clamp(2rem, 5vw, 4.5rem);
-  --text-fluid-body: clamp(1rem, 1.2vw, 1.125rem);
+  --text-fluid-h1: clamp(3.5rem, 11vw, 8.5rem);
+  --text-fluid-h2: clamp(2.5rem, 8vw, 6rem);
+  --text-fluid-body: clamp(1rem, 1.25vw, 1.25rem);
 }
 
 @layer utilities {

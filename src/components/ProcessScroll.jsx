@@ -146,7 +146,7 @@ const ProcessScroll = () => {
                     <div className="h-1 w-20 bg-electric-blue mb-4" />
                     <h2 className="text-[var(--text-fluid-h2)] font-black text-white italic uppercase leading-none">
                         PROCESS<br />
-                        <span className="text-gray-800">FLOW_v3</span>
+                        <span className="text-gray-600">FLOW_v3</span>
                     </h2>
                 </div>
 

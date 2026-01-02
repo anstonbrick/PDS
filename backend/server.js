@@ -62,7 +62,8 @@ const referralSchema = z.object({
 });
 
 const statusUpdateSchema = z.object({
-    status: z.enum(['pending', 'approved', 'rejected', 'completed'])
+    status: z.enum(['pending', 'reviewing', 'approved', 'production', 'shipping', 'completed', 'on_hold', 'rejected']),
+    reason: z.string().optional()
 });
 
 // --- Database Setup ---
@@ -91,10 +92,14 @@ db.serialize(() => {
         contact_handle TEXT,
         notes TEXT,
         status TEXT DEFAULT 'pending',
+        rejection_reason TEXT,
+        updated_at DATETIME,
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 
     db.run("ALTER TABLE requests ADD COLUMN status TEXT DEFAULT 'pending'", (err) => { /* Ignore duplicate column error */ });
+    db.run("ALTER TABLE requests ADD COLUMN rejection_reason TEXT", (err) => { /* Ignore duplicate column error */ });
+    db.run("ALTER TABLE requests ADD COLUMN updated_at DATETIME", (err) => { /* Ignore duplicate column error */ });
 });
 
 authDb.serialize(() => {
@@ -186,7 +191,7 @@ app.get('/api/status', (req, res) => {
 
 app.get('/api/tracking/:access_key', (req, res) => {
     const { access_key } = req.params;
-    const sql = `SELECT id, character_name, series_source, status, timestamp, operator_name FROM requests WHERE access_key = ?`;
+    const sql = `SELECT id, character_name, series_source, status, timestamp, updated_at, rejection_reason, operator_name FROM requests WHERE access_key = ?`;
     db.get(sql, [access_key], (err, row) => {
         if (err) return res.status(500).json({ error: 'Database error' });
         if (!row) return res.status(404).json({ error: 'Invalid Access Key' });
@@ -203,8 +208,9 @@ app.post('/api/request', validate(requestSchema), (req, res) => {
 
     const sql = `INSERT INTO requests (
         access_key, operator_name, character_name, series_source, 
-        sourcing_vibe, contact_method, contact_handle, notes
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+        sourcing_vibe, contact_method, contact_handle, notes,
+        updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`;
 
     const params = [
         access_key, operator_name, character_name, series_source,
@@ -314,9 +320,28 @@ app.get('/api/admin/requests', authenticateToken, isAdmin, (req, res) => {
 });
 
 app.put('/api/admin/requests/:id/status', authenticateToken, isAdmin, validate(statusUpdateSchema), (req, res) => {
-    const { status } = req.body;
+    const { status, reason } = req.body;
     const { id } = req.params;
-    db.run("UPDATE requests SET status = ? WHERE id = ?", [status, id], function (err) {
+
+    // Only update rejection_reason if strictly provided (even empty string), otherwise leave as is ?? 
+    // Actually, user might want to CLEAR it if not rejected. 
+    // Simpler logic: Update reason if provided.
+
+    let sql = "UPDATE requests SET status = ?, updated_at = CURRENT_TIMESTAMP";
+    let params = [status];
+
+    if (reason !== undefined) {
+        sql += ", rejection_reason = ?";
+        params.push(reason);
+    }
+
+    // Create new list so we don't mess up params order
+    // Actually wait, simple append works.
+
+    sql += " WHERE id = ?";
+    params.push(id);
+
+    db.run(sql, params, function (err) {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: 'Status updated', changes: this.changes });
     });

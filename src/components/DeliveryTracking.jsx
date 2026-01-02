@@ -37,12 +37,20 @@ const DeliveryTracking = () => {
 
     // Status Badge Helper
     const getStatusBadge = (status) => {
-        const s = status.toLowerCase();
-        if (s === 'pending') return { color: 'text-amber-500', border: 'border-amber-500', bg: 'bg-amber-500/10', icon: Clock, label: 'PROCESSING_QUEUE' };
-        if (s === 'approved') return { color: 'text-blue-500', border: 'border-blue-500', bg: 'bg-blue-500/10', icon: CheckCircle, label: 'PRODUCTION_ACTIVE' };
-        if (s === 'completed') return { color: 'text-electric-green', border: 'border-electric-green', bg: 'bg-electric-green/10', icon: Package, label: 'DELIVERY_READY' };
-        if (s === 'rejected') return { color: 'text-red-500', border: 'border-red-500', bg: 'bg-red-500/10', icon: XCircle, label: 'REQUEST_DENIED' };
-        return { color: 'text-gray-500', border: 'border-gray-500', bg: 'bg-gray-500/10', icon: AlertCircle, label: 'UNKNOWN_STATE' };
+        const s = status ? status.toLowerCase() : 'pending';
+
+        const badges = {
+            pending: { color: 'text-amber-500', border: 'border-amber-500', bg: 'bg-amber-500/10', icon: Clock, label: 'PROCESSING_QUEUE' },
+            reviewing: { color: 'text-purple-500', border: 'border-purple-500', bg: 'bg-purple-500/10', icon: Search, label: 'MANUAL_REVIEW' },
+            approved: { color: 'text-blue-500', border: 'border-blue-500', bg: 'bg-blue-500/10', icon: CheckCircle, label: 'PRODUCTION_ACTIVE' },
+            production: { color: 'text-pink-500', border: 'border-pink-500', bg: 'bg-pink-500/10', icon: Package, label: 'FABRICATION_MODE' },
+            shipping: { color: 'text-cyan-500', border: 'border-cyan-500', bg: 'bg-cyan-500/10', icon: Package, label: 'IN_TRANSIT' },
+            completed: { color: 'text-electric-green', border: 'border-electric-green', bg: 'bg-electric-green/10', icon: CheckCircle, label: 'DELIVERY_CONFIRMED' },
+            on_hold: { color: 'text-orange-500', border: 'border-orange-500', bg: 'bg-orange-500/10', icon: AlertCircle, label: 'PATTERN_HOLD' },
+            rejected: { color: 'text-red-500', border: 'border-red-500', bg: 'bg-red-500/10', icon: XCircle, label: 'REQUEST_DENIED' }
+        };
+
+        return badges[s] || { color: 'text-gray-500', border: 'border-gray-500', bg: 'bg-gray-500/10', icon: AlertCircle, label: 'UNKNOWN_STATE' };
     };
 
     return (
@@ -116,7 +124,7 @@ const DeliveryTracking = () => {
                                 const badge = getStatusBadge(trackingData.status);
                                 const Icon = badge.icon;
                                 return (
-                                    <div className={`md:col-span-2 ${badge.bg} ${badge.border} border p-6 flex items-center justify-between`}>
+                                    <div className={`md:col-span-2 ${badge.bg} ${badge.border} border p-6 flex flex-col md:flex-row md:items-center justify-between gap-4`}>
                                         <div className="flex items-center gap-4">
                                             <Icon size={32} className={badge.color} />
                                             <div>
@@ -124,13 +132,32 @@ const DeliveryTracking = () => {
                                                 <div className="text-gray-400 text-xs font-mono uppercase">Current Status</div>
                                             </div>
                                         </div>
-                                        <div className="text-right">
-                                            <div className="text-white font-mono text-sm">{new Date(trackingData.timestamp).toLocaleDateString()}</div>
+                                        <div className="text-left md:text-right">
+                                            <div className="text-white font-mono text-sm">
+                                                {trackingData.updated_at
+                                                    ? new Date(trackingData.updated_at).toLocaleString()
+                                                    : trackingData.timestamp
+                                                        ? new Date(trackingData.timestamp).toLocaleString()  // Fallback if updated_at is null but timestamp exists
+                                                        : 'N/A'
+                                                }
+                                            </div>
                                             <div className="text-gray-500 text-xs font-bold uppercase tracking-wider">Last Update</div>
                                         </div>
                                     </div>
                                 );
                             })()}
+
+                            {/* Rejection Reason - ONLY show if rejected */}
+                            {trackingData.status === 'rejected' && trackingData.rejection_reason && (
+                                <div className="md:col-span-2 bg-red-950/30 border border-red-900/50 p-6 space-y-2">
+                                    <div className="text-red-500 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                                        <AlertCircle size={14} /> Only For Your Eyes // Denial Reason
+                                    </div>
+                                    <div className="text-white font-mono text-sm leading-relaxed border-l-2 border-red-500 pl-4 py-1">
+                                        {trackingData.rejection_reason}
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Details */}
                             <div className="space-y-1">
@@ -154,18 +181,31 @@ const DeliveryTracking = () => {
                             </div>
                         </div>
 
-                        {/* Visual Timeline (Static for now, can be dynamic later) */}
-                        <div className="flex justify-between items-center px-4 pt-8 opacity-50">
-                            {['Pending', 'Approved', 'Completed'].map((s, i) => {
-                                const currentStatus = trackingData.status.toLowerCase();
-                                const steps = ['pending', 'approved', 'completed'];
-                                const currentIndex = steps.indexOf(currentStatus);
-                                const isActive = i <= currentIndex;
+                        {/* Visual Timeline */}
+                        <div className="flex justify-between items-center px-4 pt-8 opacity-50 overflow-x-auto pb-4 md:pb-0">
+                            {['Pending', 'Reviewing', 'Approved', 'Production', 'Shipping', 'Completed'].map((s, i) => {
+                                const currentStatus = trackingData.status ? trackingData.status.toLowerCase() : 'pending';
+
+                                // Map statuses to timeline steps order
+                                const statusOrder = ['pending', 'reviewing', 'approved', 'production', 'shipping', 'completed'];
+                                const currentIndex = statusOrder.indexOf(currentStatus);
+                                const stepIndex = statusOrder.indexOf(s.toLowerCase());
+
+                                // Special handling for rejected/on_hold which are not linear
+                                const isRejected = currentStatus === 'rejected';
+                                const isOnHold = currentStatus === 'on_hold';
+
+                                let isActive = false;
+                                if (!isRejected && !isOnHold) {
+                                    isActive = currentIndex >= stepIndex;
+                                }
 
                                 return (
-                                    <div key={s} className="flex flex-col items-center gap-2">
-                                        <div className={`w-4 h-4 rounded-full ${isActive ? 'bg-white' : 'bg-white/20'}`} />
-                                        <div className="text-[10px] uppercase font-bold tracking-widest font-mono">{s}</div>
+                                    <div key={s} className={`flex flex-col items-center gap-2 min-w-[80px] ${isRejected ? 'opacity-20' : ''}`}>
+                                        <div className={`w-3 h-3 rounded-full transition-all duration-500 ${isActive ? 'bg-electric-blue scale-125' : 'bg-white/20'}`} />
+                                        <div className={`text-[10px] uppercase font-bold tracking-widest font-mono transition-colors ${isActive ? 'text-electric-blue' : 'text-gray-600'}`}>
+                                            {s}
+                                        </div>
                                     </div>
                                 )
                             })}

@@ -69,7 +69,7 @@ const VisualProof = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex flex-col md:flex-row items-end justify-between mb-12 gap-6">
                     <div>
-                        <span className="inline-block px-3 py-1 bg-electric-purple text-black font-black uppercase text-xs mb-2 border-2 border-black flat-shadow">
+                        <span className="inline-block px-3 py-1 bg-electric-purple text-black font-black uppercase text-sm mb-3 border-2 border-black flat-shadow">
                             VERIFICATION ENGINE
                         </span>
                         <h2 className="text-[var(--text-fluid-h2)] font-black text-white italic uppercase leading-none">
