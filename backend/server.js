@@ -1,37 +1,84 @@
+require('dotenv').config();
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const morgan = require('morgan');
+const { z } = require('zod');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const JWT_SECRET = 'your-super-secret-jwt-key-change-this-in-prod'; // TODO: Move to env var
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key-change-this';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'adminpassword123';
 
-// Middleware
+// --- Middleware ---
+app.use(helmet()); // Security Headers
 app.use(cors());
 app.use(express.json());
+app.use(morgan('dev')); // Logging
 
-// Database Setup
+// Rate Limiting
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many requests, please try again later.' }
+});
+app.use('/api', limiter);
+
+// --- Validation Schemas ---
+const signupSchema = z.object({
+    username: z.string().min(3).max(50),
+    password: z.string().min(8),
+    referral_code: z.string().min(1)
+});
+
+const loginSchema = z.object({
+    username: z.string(),
+    password: z.string()
+});
+
+const requestSchema = z.object({
+    access_key: z.string().min(1),
+    operator_name: z.string().optional(),
+    character_name: z.string().optional(),
+    series_source: z.string().optional(),
+    sourcing_vibe: z.any().optional(), // Can be string or array/object depending on frontend
+    contact_method: z.string().optional(),
+    contact_handle: z.string().optional(),
+    notes: z.string().optional()
+});
+
+const referralSchema = z.object({
+    code: z.string().min(3).regex(/^[A-Za-z0-9_-]+$/),
+    description: z.string().optional(),
+    usage_limit: z.number().int().positive().optional(),
+    expiration_date: z.string().datetime().nullable().optional() // Expect ISO string
+});
+
+const statusUpdateSchema = z.object({
+    status: z.enum(['pending', 'approved', 'rejected', 'completed'])
+});
+
+// --- Database Setup ---
 const dbPath = path.resolve(__dirname, 'pds_requests.db');
 const db = new sqlite3.Database(dbPath, (err) => {
-    if (err) {
-        return console.error('Error opening database:', err.message);
-    }
+    if (err) return console.error('Error opening database:', err.message);
     console.log('Connected to the SQLite database.');
 });
 
-// Auth Database Setup
 const authDbPath = path.resolve(__dirname, 'pds_auth.db');
 const authDb = new sqlite3.Database(authDbPath, (err) => {
-    if (err) {
-        return console.error('Error opening auth database:', err.message);
-    }
+    if (err) return console.error('Error opening auth database:', err.message);
     console.log('Connected to the Auth SQLite database.');
 });
 
-// Create Tables & Seed Data
+// --- Migrations & Seeding ---
 db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS requests (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -43,48 +90,35 @@ db.serialize(() => {
         contact_method TEXT,
         contact_handle TEXT,
         notes TEXT,
-        status TEXT DEFAULT 'pending', -- pending, approved, rejected, completed
+        status TEXT DEFAULT 'pending',
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 
-    // Ensure status column exists (migration for existing dbs)
-    db.run("ALTER TABLE requests ADD COLUMN status TEXT DEFAULT 'pending'", (err) => {
-        // Ignore duplicate column error
-    });
+    db.run("ALTER TABLE requests ADD COLUMN status TEXT DEFAULT 'pending'", (err) => { /* Ignore duplicate column error */ });
 });
 
 authDb.serialize(() => {
-    // Users Table Update: Add role
     authDb.run(`CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE NOT NULL,
         password_hash TEXT NOT NULL,
         referral_code TEXT,
-        role TEXT DEFAULT 'user', -- 'user' or 'admin'
+        role TEXT DEFAULT 'user',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`, (err) => {
-        if (!err) console.log('Users table ready.');
-    });
+    )`);
 
-    // Try adding role column if not exists (migration)
-    authDb.run("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'", (err) => {
-        // Ignore duplicate column error
-    });
+    authDb.run("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'", (err) => { /* Ignore duplicate column error */ });
 
-    // Referral Codes Table
-    // Referral Codes Table
     authDb.run(`CREATE TABLE IF NOT EXISTS referral_codes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         code TEXT UNIQUE NOT NULL,
         description TEXT,
         usage_limit INTEGER,
         expiration_date DATETIME,
-        created_by TEXT, -- admin username
+        created_by TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`, (err) => {
         if (!err) {
-            console.log('Referral Codes table ready.');
-            // Seed default codes
             const seedCodes = [
                 ['PDS2026', 'Legacy Default Code', null, null],
                 ['ADMIN', 'System Admin Code', null, null],
@@ -96,16 +130,14 @@ authDb.serialize(() => {
         }
     });
 
-    // Migrations for new columns
     authDb.run("ALTER TABLE referral_codes ADD COLUMN usage_limit INTEGER", () => { });
     authDb.run("ALTER TABLE referral_codes ADD COLUMN expiration_date DATETIME", () => { });
 
-    // Ensure Admin User Exists
+    // Ensure Admin User
     const adminUsername = 'admin';
-    const adminPassword = 'adminpassword123'; // Change this!
     const adminRole = 'admin';
 
-    bcrypt.hash(adminPassword, 10, (err, hash) => {
+    bcrypt.hash(ADMIN_PASSWORD, 10, (err, hash) => {
         if (!err) {
             authDb.run(`INSERT OR IGNORE INTO users (username, password_hash, referral_code, role) 
                 VALUES (?, ?, 'ADMIN', ?)`,
@@ -115,11 +147,10 @@ authDb.serialize(() => {
     });
 });
 
-// --- Middleware ---
-
+// --- Auth Middleware ---
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+    const token = authHeader && authHeader.split(' ')[1];
 
     if (token == null) return res.sendStatus(401);
 
@@ -138,17 +169,23 @@ const isAdmin = (req, res, next) => {
     }
 };
 
+const validate = (schema) => (req, res, next) => {
+    try {
+        schema.parse(req.body);
+        next();
+    } catch (err) {
+        return res.status(400).json({ error: 'Validation error', details: err.errors });
+    }
+};
+
 // --- API Routes ---
 
-// Health Check
 app.get('/api/status', (req, res) => {
     res.json({ status: 'online', timestamp: new Date() });
 });
 
-// Data Tracking (Public)
 app.get('/api/tracking/:access_key', (req, res) => {
     const { access_key } = req.params;
-
     const sql = `SELECT id, character_name, series_source, status, timestamp, operator_name FROM requests WHERE access_key = ?`;
     db.get(sql, [access_key], (err, row) => {
         if (err) return res.status(500).json({ error: 'Database error' });
@@ -157,22 +194,12 @@ app.get('/api/tracking/:access_key', (req, res) => {
     });
 });
 
-// Submit Request (Public)
-app.post('/api/request', (req, res) => {
+app.post('/api/request', validate(requestSchema), (req, res) => {
+    // Sanitized body available via req.body (express.json is safe, but zod validates type)
     const {
-        access_key,
-        operator_name,
-        character_name,
-        series_source,
-        sourcing_vibe,
-        contact_method,
-        contact_handle,
-        notes
+        access_key, operator_name, character_name, series_source,
+        sourcing_vibe, contact_method, contact_handle, notes
     } = req.body;
-
-    if (!access_key) {
-        return res.status(400).json({ error: 'Access Key is required' });
-    }
 
     const sql = `INSERT INTO requests (
         access_key, operator_name, character_name, series_source, 
@@ -180,14 +207,8 @@ app.post('/api/request', (req, res) => {
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
 
     const params = [
-        access_key,
-        operator_name,
-        character_name,
-        series_source,
-        JSON.stringify(sourcing_vibe),
-        contact_method,
-        contact_handle,
-        notes
+        access_key, operator_name, character_name, series_source,
+        JSON.stringify(sourcing_vibe), contact_method, contact_handle, notes
     ];
 
     db.run(sql, params, function (err) {
@@ -198,8 +219,6 @@ app.post('/api/request', (req, res) => {
             }
             return res.status(500).json({ error: 'Database error' });
         }
-
-        console.log(`New request added with ID: ${this.lastID}`);
         res.status(201).json({
             message: 'Request submitted successfully',
             id: this.lastID,
@@ -210,100 +229,62 @@ app.post('/api/request', (req, res) => {
 
 // --- Auth Routes ---
 
-// Signup
-app.post('/api/auth/signup', async (req, res) => {
+app.post('/api/auth/signup', validate(signupSchema), (req, res) => {
     const { username, password, referral_code } = req.body;
 
-    if (!username || !password || !referral_code) {
-        return res.status(400).json({ error: 'All fields are required' });
-    }
-
-    // Check Referral Code in DB
     const codeSql = `SELECT * FROM referral_codes WHERE code = ?`;
-    authDb.get(codeSql, [referral_code], async (err, row) => {
+    authDb.get(codeSql, [referral_code], (err, row) => {
         if (err) return res.status(500).json({ error: 'Database error checking referral' });
+        if (!row) return res.status(403).json({ error: 'Invalid Referral Code' });
 
-        if (!row) {
-            return res.status(403).json({ error: 'Invalid Referral Code' });
+        if (row.expiration_date && new Date() > new Date(row.expiration_date)) {
+            return res.status(403).json({ error: 'Referral Code has expired' });
         }
 
-        // Check Expiration
-        if (row.expiration_date) {
-            const expDate = new Date(row.expiration_date);
-            if (new Date() > expDate) {
-                return res.status(403).json({ error: 'Referral Code has expired' });
-            }
-        }
-
-        // Check Usage Limit
         if (row.usage_limit) {
-            const countSql = `SELECT COUNT(*) as count FROM users WHERE referral_code = ?`;
-            authDb.get(countSql, [referral_code], async (err, usageRow) => {
-                if (err) return res.status(500).json({ error: 'Database error checking usage' });
-
-                if (usageRow.count >= row.usage_limit) {
-                    return res.status(403).json({ error: 'Referral Code usage limit reached' });
-                }
-
-                // Proceed with Signup
+            authDb.get(`SELECT COUNT(*) as count FROM users WHERE referral_code = ?`, [referral_code], (err, usageRow) => {
+                if (err) return res.status(500).json({ error: 'Database error' });
+                if (usageRow.count >= row.usage_limit) return res.status(403).json({ error: 'Referral Code usage limit reached' });
                 createAccount();
             });
         } else {
-            // No limit, proceed
             createAccount();
         }
-
-        async function createAccount() {
-            try {
-                const password_hash = await bcrypt.hash(password, 10);
-                // Default role is 'user'
-                const sql = `INSERT INTO users (username, password_hash, referral_code, role) VALUES (?, ?, ?, 'user')`;
-                authDb.run(sql, [username, password_hash, referral_code], function (err) {
-                    if (err) {
-                        if (err.message.includes('UNIQUE constraint failed')) {
-                            return res.status(409).json({ error: 'Username already exists' });
-                        }
-                        return res.status(500).json({ error: 'Database error during signup' });
-                    }
-                    res.status(201).json({ message: 'User created successfully', userId: this.lastID });
-                });
-            } catch (err) {
-                res.status(500).json({ error: 'Server error' });
-            }
-        }
     });
+
+    async function createAccount() {
+        try {
+            const password_hash = await bcrypt.hash(password, 10);
+            const sql = `INSERT INTO users (username, password_hash, referral_code, role) VALUES (?, ?, ?, 'user')`;
+            authDb.run(sql, [username, password_hash, referral_code], function (err) {
+                if (err) {
+                    if (err.message.includes('UNIQUE constraint failed')) return res.status(409).json({ error: 'Username already exists' });
+                    return res.status(500).json({ error: 'Database error' });
+                }
+                res.status(201).json({ message: 'User created successfully', userId: this.lastID });
+            });
+        } catch (err) {
+            res.status(500).json({ error: 'Server error' });
+        }
+    }
 });
 
-// Login
-app.post('/api/auth/login', (req, res) => {
+app.post('/api/auth/login', validate(loginSchema), (req, res) => {
     const { username, password } = req.body;
-
-    if (!username || !password) {
-        return res.status(400).json({ error: 'Username and password required' });
-    }
-
-    const sql = `SELECT * FROM users WHERE username = ?`;
-    authDb.get(sql, [username], async (err, user) => {
+    authDb.get(`SELECT * FROM users WHERE username = ?`, [username], async (err, user) => {
         if (err) return res.status(500).json({ error: 'Database error' });
         if (!user) return res.status(401).json({ error: 'Invalid credentials' });
 
-        const match = await bcrypt.compare(password, user.password_hash);
-        if (match) {
-            // Generate JWT
+        if (await bcrypt.compare(password, user.password_hash)) {
             const token = jwt.sign(
                 { id: user.id, username: user.username, role: user.role || 'user' },
                 JWT_SECRET,
                 { expiresIn: '24h' }
             );
-
             res.json({
                 message: 'Login successful',
-                token: token,
-                user: {
-                    id: user.id,
-                    username: user.username,
-                    role: user.role || 'user'
-                }
+                token,
+                user: { id: user.id, username: user.username, role: user.role || 'user' }
             });
         } else {
             res.status(401).json({ error: 'Invalid credentials' });
@@ -311,45 +292,20 @@ app.post('/api/auth/login', (req, res) => {
     });
 });
 
-// --- ADMIN ROUTES (Protected) ---
+// --- ADMIN ROUTES ---
 
-// Stats Dashboard
 app.get('/api/admin/stats', authenticateToken, isAdmin, (req, res) => {
-    const stats = {};
-
-    const reqPromise = new Promise((resolve, reject) => {
-        db.get("SELECT COUNT(*) as count FROM requests", (err, row) => {
-            if (err) reject(err); else resolve(row.count);
-        });
-    });
-
-    const userPromise = new Promise((resolve, reject) => {
-        authDb.get("SELECT COUNT(*) as count FROM users", (err, row) => {
-            if (err) reject(err); else resolve(row.count);
-        });
-    });
-
-    const referralPromise = new Promise((resolve, reject) => {
-        authDb.get("SELECT COUNT(*) as count FROM referral_codes", (err, row) => {
-            if (err) reject(err); else resolve(row.count);
-        });
-    });
-
-    Promise.all([reqPromise, userPromise, referralPromise])
-        .then(([reqCount, userCount, refCount]) => {
-            res.json({
-                requests: reqCount,
-                users: userCount,
-                referral_codes: refCount
-            });
-        })
+    Promise.all([
+        new Promise((resolve, reject) => db.get("SELECT COUNT(*) as count FROM requests", (e, r) => e ? reject(e) : resolve(r.count))),
+        new Promise((resolve, reject) => authDb.get("SELECT COUNT(*) as count FROM users", (e, r) => e ? reject(e) : resolve(r.count))),
+        new Promise((resolve, reject) => authDb.get("SELECT COUNT(*) as count FROM referral_codes", (e, r) => e ? reject(e) : resolve(r.count)))
+    ]).then(([requests, users, referral_codes]) => res.json({ requests, users, referral_codes }))
         .catch(err => {
             console.error(err);
             res.status(500).json({ error: 'Failed to fetch stats' });
         });
 });
 
-// Requests Management
 app.get('/api/admin/requests', authenticateToken, isAdmin, (req, res) => {
     db.all("SELECT * FROM requests ORDER BY timestamp DESC", [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -357,7 +313,7 @@ app.get('/api/admin/requests', authenticateToken, isAdmin, (req, res) => {
     });
 });
 
-app.put('/api/admin/requests/:id/status', authenticateToken, isAdmin, (req, res) => {
+app.put('/api/admin/requests/:id/status', authenticateToken, isAdmin, validate(statusUpdateSchema), (req, res) => {
     const { status } = req.body;
     const { id } = req.params;
     db.run("UPDATE requests SET status = ? WHERE id = ?", [status, id], function (err) {
@@ -366,7 +322,6 @@ app.put('/api/admin/requests/:id/status', authenticateToken, isAdmin, (req, res)
     });
 });
 
-// Users Management
 app.get('/api/admin/users', authenticateToken, isAdmin, (req, res) => {
     authDb.all("SELECT id, username, referral_code, role, created_at FROM users ORDER BY created_at DESC", [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -374,37 +329,25 @@ app.get('/api/admin/users', authenticateToken, isAdmin, (req, res) => {
     });
 });
 
-// Referral Codes Management
 app.get('/api/admin/referrals', authenticateToken, isAdmin, (req, res) => {
-    // Get all codes
     authDb.all("SELECT * FROM referral_codes ORDER BY created_at DESC", [], async (err, codes) => {
         if (err) return res.status(500).json({ error: err.message });
-
-        // Calculate usage for each code
-        const usagePromises = codes.map(code => {
-            return new Promise((resolve) => {
-                authDb.get("SELECT COUNT(*) as count FROM users WHERE referral_code = ?", [code.code], (err, row) => {
-                    resolve({ ...code, usage_count: row ? row.count : 0 });
-                });
+        const usagePromises = codes.map(code => new Promise(resolve => {
+            authDb.get("SELECT COUNT(*) as count FROM users WHERE referral_code = ?", [code.code], (err, row) => {
+                resolve({ ...code, usage_count: row ? row.count : 0 });
             });
-        });
-
-        const result = await Promise.all(usagePromises);
-        res.json(result);
+        }));
+        res.json(await Promise.all(usagePromises));
     });
 });
 
-app.post('/api/admin/referrals', authenticateToken, isAdmin, (req, res) => {
+app.post('/api/admin/referrals', authenticateToken, isAdmin, validate(referralSchema), (req, res) => {
     const { code, description, usage_limit, expiration_date } = req.body;
-    if (!code) return res.status(400).json({ error: 'Code is required' });
-
     authDb.run("INSERT INTO referral_codes (code, description, usage_limit, expiration_date, created_by) VALUES (?, ?, ?, ?, ?)",
         [code, description, usage_limit || null, expiration_date || null, req.user.username],
         function (err) {
             if (err) {
-                if (err.message.includes('UNIQUE constraint failed')) {
-                    return res.status(409).json({ error: 'Code already exists' });
-                }
+                if (err.message.includes('UNIQUE constraint failed')) return res.status(409).json({ error: 'Code already exists' });
                 return res.status(500).json({ error: err.message });
             }
             res.status(201).json({ id: this.lastID, code, description, usage_limit, expiration_date });
@@ -413,44 +356,46 @@ app.post('/api/admin/referrals', authenticateToken, isAdmin, (req, res) => {
 });
 
 app.delete('/api/admin/referrals/:id', authenticateToken, isAdmin, (req, res) => {
-    const { id } = req.params;
-    authDb.run("DELETE FROM referral_codes WHERE id = ?", [id], function (err) {
+    authDb.run("DELETE FROM referral_codes WHERE id = ?", [req.params.id], function (err) {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: 'Referral code deleted', changes: this.changes });
     });
 });
 
 app.get('/api/admin/referrals/:id/users', authenticateToken, isAdmin, (req, res) => {
-    const { id } = req.params;
-
-    // First get the code string
-    authDb.get("SELECT code FROM referral_codes WHERE id = ?", [id], (err, row) => {
+    authDb.get("SELECT code FROM referral_codes WHERE id = ?", [req.params.id], (err, row) => {
         if (err) return res.status(500).json({ error: "Database error" });
         if (!row) return res.status(404).json({ error: "Code not found" });
-
-        const code = row.code;
-        authDb.all("SELECT id, username, created_at FROM users WHERE referral_code = ? ORDER BY created_at DESC", [code], (err, users) => {
+        authDb.all("SELECT id, username, created_at FROM users WHERE referral_code = ? ORDER BY created_at DESC", [row.code], (err, users) => {
             if (err) return res.status(500).json({ error: err.message });
             res.json(users);
         });
     });
 });
 
+// --- Global Error Handlers ---
 
-// Start Server
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT} [TRACKING ENABLED]`);
+app.use((req, res, next) => {
+    res.status(404).json({ error: 'Not Found' });
 });
+
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ error: 'Internal Server Error' });
+});
+
+// --- Server Startup ---
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`Server running on http://localhost:${PORT}`);
+    });
+}
 
 // Graceful Custom Shutdown
 process.on('SIGINT', () => {
-    db.close((err) => {
-        if (err) console.error('Error closing request db:', err.message);
-        else console.log('Request DB closed.');
-    });
-    authDb.close((err) => {
-        if (err) console.error('Error closing auth db:', err.message);
-        else console.log('Auth DB closed.');
-    });
+    db.close((err) => console.log(err ? 'Error closing request db' : 'Request DB closed'));
+    authDb.close((err) => console.log(err ? 'Error closing auth db' : 'Auth DB closed'));
     process.exit(0);
 });
+
+module.exports = app; // For testing
