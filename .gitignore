@@ -26,3 +26,4 @@ DPS.pem
 backend/pds_auth.db-journal
 backend/pds_auth.db
 backend/pds_auth.db
+*.db
