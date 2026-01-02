@@ -12,7 +12,9 @@ RenderDrop is a high-performance, aesthetically driven web application designed 
 - **Dual Visual Themes:** Seamlessly switch between "Luxury Acquisition" and "Pixel Perfect Persona" themes.
 - **User Authentication:** Secure signup and login flow with referral code validation and JWT sessions.
 - **Request System:** A multi-step form for users to submit rendering requests, generating unique, cryptographic receipt keys for tracking.
-- **Admin Panel:** A comprehensive dashboard for administrators to manage requests, view analytics, and control referral codes.
+- **Admin Panel:** A powerful command center for managing PDS requests with real-time status updates (Reviewing, Approved, Production, etc.), automated UI feedback, and referral code logistics.
+- **Request Tracking System:** Users can monitor their request status in real-time. Features include a visual progress timeline and a secure "denial reason" system for transparent feedback on rejected requests.
+- **Enhanced Reliability:** Integrated optimistic UI updates and loading states for admin actions, ensuring a stable and responsive management experience.
 - **Security First:** Implements industry-standard security headers (Helmet), rate limiting, and strict input validation (Zod).
 - **Responsive Design:** Fully optimized for mobile, tablet, and desktop viewing.
 
@@ -51,8 +53,8 @@ Follow these instructions to set up the project locally for development.
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/render-drop.git
-    cd render-drop
+    git clone https://github.com/anstonbrick/PDS.git
+    cd PDS
     ```
 
 2.  **Install Frontend Dependencies:**
