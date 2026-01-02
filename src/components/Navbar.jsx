@@ -61,16 +61,20 @@ const Navbar = () => {
                 </div>
             </div>
 
-            {/* Mobile menu */}
+            {/* Mobile menu - Full Screen & Animated */}
             {isOpen && (
-                <div ref={menuRef} className="md:hidden bg-electric-blue border-b-4 border-black">
-                    <div className="px-4 pt-4 pb-8 space-y-2">
+                <div
+                    ref={menuRef}
+                    className="md:hidden fixed inset-0 top-[78px] bg-electric-blue border-t-4 border-black z-40 overflow-y-auto"
+                    style={{ clipPath: 'polygon(0 0, 100% 0, 100% 0, 0 0)' }}
+                >
+                    <div className="flex flex-col min-h-[calc(100vh-80px)] p-6 space-y-6">
                         {['Start', 'Quality', 'Showcase', 'Process'].map((item) => (
                             <a
                                 key={item}
                                 href={`#${item.toLowerCase()}`}
                                 onClick={() => setIsOpen(false)}
-                                className="block text-2xl font-black uppercase tracking-tighter text-black hover:italic py-2"
+                                className="block text-4xl font-black uppercase tracking-tighter text-black hover:text-white hover:italic py-3 transition-colors border-b-2 border-black/10"
                             >
                                 {item}
                             </a>
@@ -80,9 +84,9 @@ const Navbar = () => {
                                 setIsOpen(false);
                                 window.dispatchEvent(new CustomEvent('open-request-drawer'));
                             }}
-                            className="w-full text-left bg-black text-white px-4 py-4 text-xl font-black uppercase tracking-tighter mt-4"
+                            className="w-full text-left bg-black text-white px-6 py-6 text-2xl font-black uppercase tracking-tighter mt-auto active:scale-95 transition-transform"
                         >
-                            Get Access
+                            Get Access <span className="ml-2 text-electric-blue">→</span>
                         </button>
                     </div>
                 </div>

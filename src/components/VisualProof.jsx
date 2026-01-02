@@ -72,7 +72,7 @@ const VisualProof = () => {
                         <span className="inline-block px-3 py-1 bg-electric-purple text-black font-black uppercase text-xs mb-2 border-2 border-black flat-shadow">
                             VERIFICATION ENGINE
                         </span>
-                        <h2 className="text-5xl md:text-7xl font-black text-white italic uppercase leading-none">
+                        <h2 className="text-[var(--text-fluid-h2)] font-black text-white italic uppercase leading-none">
                             PURE QUALITY.<br />
                             <span className="text-electric-blue">NO COMPROMISE.</span>
                         </h2>
@@ -84,7 +84,7 @@ const VisualProof = () => {
 
                 <div
                     ref={containerRef}
-                    className="relative w-full max-w-6xl mx-auto h-[400px] md:h-[600px] border-4 border-black flat-shadow-blue overflow-hidden cursor-ew-resize select-none bg-render-dark shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)]"
+                    className="relative w-full max-w-6xl mx-auto h-[300px] md:h-[600px] border-4 border-black flat-shadow-blue overflow-hidden cursor-ew-resize select-none bg-render-dark shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)]"
                     onMouseDown={handleMouseDown}
                     onTouchStart={handleMouseDown}
                 >
@@ -96,12 +96,12 @@ const VisualProof = () => {
                             className="w-full h-full object-cover"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                        <div className="absolute bottom-10 right-10 text-right proof-label">
-                            <div className="flex items-center justify-end gap-3 mb-2">
-                                <h3 className="text-4xl md:text-5xl font-black text-white uppercase italic">VERIFIED</h3>
-                                <ShieldCheck className="w-10 h-10 text-electric-green" strokeWidth={3} />
+                        <div className="absolute bottom-4 right-4 md:bottom-10 md:right-10 text-right proof-label">
+                            <div className="flex items-center justify-end gap-2 md:gap-3 mb-1 md:mb-2">
+                                <h3 className="text-xl md:text-5xl font-black text-white uppercase italic">VERIFIED</h3>
+                                <ShieldCheck className="w-5 h-5 md:w-10 md:h-10 text-electric-green" strokeWidth={3} />
                             </div>
-                            <p className="text-electric-blue font-black uppercase tracking-widest text-sm">Crystalline 4K • Human Curated</p>
+                            <p className="text-electric-blue font-black uppercase tracking-widest text-[10px] md:text-sm hidden md:block">Crystalline 4K • Human Curated</p>
                         </div>
                     </div>
 
@@ -120,12 +120,12 @@ const VisualProof = () => {
                             <div className="absolute inset-0 opacity-20 pointer-events-none"
                                 style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000 0, #000 20px, transparent 20px, transparent 40px)' }} />
 
-                            <div className="absolute bottom-10 left-10 proof-label">
-                                <div className="flex items-center gap-3 mb-2">
-                                    <AlertTriangle className="w-10 h-10 text-red-500" strokeWidth={3} />
-                                    <h3 className="text-4xl md:text-5xl font-black text-gray-500 uppercase italic">SLOP</h3>
+                            <div className="absolute bottom-4 left-4 md:bottom-10 md:left-10 proof-label">
+                                <div className="flex items-center gap-2 md:gap-3 mb-1 md:mb-2">
+                                    <AlertTriangle className="w-5 h-5 md:w-10 md:h-10 text-red-500" strokeWidth={3} />
+                                    <h3 className="text-xl md:text-5xl font-black text-gray-500 uppercase italic">SLOP</h3>
                                 </div>
-                                <p className="text-red-500 font-black uppercase tracking-widest text-sm">AI Artifacts • Compressed • Generic</p>
+                                <p className="text-red-500 font-black uppercase tracking-widest text-[10px] md:text-sm hidden md:block">AI Artifacts • Compressed • Generic</p>
                             </div>
                         </div>
                     </div>

@@ -267,11 +267,11 @@ const RequestForm = () => {
                         {step === 3 && (
                             <>
                                 <div className="space-y-2">
-                                    <h3 className="text-4xl font-black text-white uppercase italic tracking-tighter">Link Protocol</h3>
+                                    <h3 className="text-[var(--text-fluid-h2)] font-black text-white uppercase italic tracking-tighter">Link Protocol</h3>
                                     <div className="h-1 w-20 bg-green-500" />
                                 </div>
                                 <div className="space-y-6">
-                                    <div className="flex gap-4">
+                                    <div className="flex flex-col md:flex-row gap-4">
                                         <button
                                             type="button"
                                             onClick={() => setFormData({ ...formData, deliveryOption: 'email' })}

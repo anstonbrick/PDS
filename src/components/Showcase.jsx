@@ -14,63 +14,75 @@ const Showcase = () => {
 
     useLayoutEffect(() => {
         const ctx = gsap.context(() => {
-            const tl = gsap.timeline({
-                scrollTrigger: {
-                    trigger: sectionRef.current,
-                    pin: true,
-                    pinSpacing: true,
-                    scrub: 1,
-                    start: 'top top',
-                    end: '+=400%',
-                    anticipatePin: 1,
-                }
+            let mm = gsap.matchMedia();
+
+            mm.add("(min-width: 768px)", () => {
+                // DESKTOP ANIMATION
+                const tl = gsap.timeline({
+                    scrollTrigger: {
+                        trigger: sectionRef.current,
+                        pin: true,
+                        pinSpacing: true,
+                        scrub: 1,
+                        start: 'top top',
+                        end: '+=400%',
+                        anticipatePin: 1,
+                    }
+                });
+
+                tl.from('.showcase-header', {
+                    y: 100, opacity: 0, scale: 0.8, duration: 2, ease: 'back.out(2)'
+                })
+                    .from('.showcase-badge', {
+                        y: 50, opacity: 0, scale: 0.5, stagger: 0.2, duration: 1.5, ease: 'elastic.out(1, 0.5)'
+                    }, '-=1')
+                    .from('.device-schematic', {
+                        y: 400, rotation: (i) => i === 0 ? -15 : 15, opacity: 0, stagger: 0.3, duration: 3, ease: 'power4.out'
+                    }, '-=0.5')
+                    // Detailed Desktop Expansion
+                    .to('.device-desktop', { x: 300, scale: 0.9, duration: 2 }, "+=0.5")
+                    .to('.device-mobile', { x: -300, scale: 0.9, rotation: -10, duration: 2 }, "<")
+                    .to('.showcase-badge', {
+                        x: (i) => (i % 2 === 0 ? -400 : 400), opacity: 0.5, duration: 2
+                    }, "<")
+                    .to(contentRef.current, {
+                        opacity: 0, y: -100, duration: 2, ease: 'power2.in'
+                    }, "+=0.5");
             });
 
-            // SCENE 1: Title & Background Entrance
-            tl.from('.showcase-header', {
-                y: 100,
-                opacity: 0,
-                scale: 0.8,
-                duration: 2,
-                ease: 'back.out(2)'
-            })
+            mm.add("(max-width: 767px)", () => {
+                // MOBILE ANIMATION - Subtler movements
+                const tl = gsap.timeline({
+                    scrollTrigger: {
+                        trigger: sectionRef.current,
+                        pin: true,
+                        pinSpacing: true,
+                        scrub: 1,
+                        start: 'top top',
+                        end: '+=400%',
+                        anticipatePin: 1,
+                    }
+                });
 
-                // SCENE 2: Badges Cascade
-                .from('.showcase-badge', {
-                    y: 50,
-                    opacity: 0,
-                    scale: 0.5,
-                    stagger: 0.2,
-                    duration: 1.5,
-                    ease: 'elastic.out(1, 0.5)'
-                }, '-=1')
-
-                // SCENE 3: Schematic Devices Slide In
-                .from('.device-schematic', {
-                    y: 400,
-                    rotation: (i) => i === 0 ? -15 : 15,
-                    opacity: 0,
-                    stagger: 0.3,
-                    duration: 3,
-                    ease: 'power4.out'
-                }, '-=0.5')
-
-                // SCENE 4: Dynamic Expansion
-                .to('.device-desktop', { x: 300, scale: 0.9, duration: 2 }, "+=0.5")
-                .to('.device-mobile', { x: -300, scale: 0.9, rotation: -10, duration: 2 }, "<")
-                .to('.showcase-badge', {
-                    x: (i) => (i % 2 === 0 ? -400 : 400),
-                    opacity: 0.5,
-                    duration: 2
-                }, "<")
-
-                // SCENE 5: Final Exit
-                .to(contentRef.current, {
-                    opacity: 0,
-                    y: -100,
-                    duration: 2,
-                    ease: 'power2.in'
-                }, "+=0.5");
+                tl.from('.showcase-header', {
+                    y: 50, opacity: 0, scale: 0.9, duration: 2, ease: 'back.out(2)'
+                })
+                    .from('.showcase-badge', {
+                        y: 20, opacity: 0, scale: 0.8, stagger: 0.1, duration: 1.5, ease: 'elastic.out(1, 0.5)'
+                    }, '-=1')
+                    .from('.device-schematic', {
+                        y: 200, opacity: 0, duration: 2, ease: 'power4.out'
+                    }, '-=0.5')
+                    // Simplified Mobile Expansion (Vertical split instead of wide horizontal)
+                    .to('.device-desktop', { y: 100, scale: 0.8, duration: 2 }, "+=0.5")
+                    .to('.device-mobile', { y: -100, scale: 0.8, rotation: -5, duration: 2 }, "<")
+                    .to('.showcase-badge', {
+                        opacity: 0.2, duration: 2
+                    }, "<")
+                    .to(contentRef.current, {
+                        opacity: 0, y: -50, duration: 2, ease: 'power2.in'
+                    }, "+=0.5");
+            });
 
         }, sectionRef.current);
 
@@ -93,14 +105,14 @@ const Showcase = () => {
                     <span className="inline-block px-3 py-1 bg-white text-black font-black uppercase text-xs mb-4 border-2 border-black flat-shadow">
                         GALLERY ENGINE v2.0
                     </span>
-                    <h1 className="text-6xl md:text-9xl font-black text-white italic uppercase leading-[0.85]">
+                    <h1 className="text-[var(--text-fluid-h1)] font-black text-white italic uppercase leading-[0.85]">
                         ANY FORMAT.<br />
                         <span className="text-electric-blue">NO LIMITS.</span>
                     </h1>
                 </div>
 
                 {/* Grid of Badges */}
-                <div ref={badgesContainerRef} className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-20 w-full max-w-5xl">
+                <div ref={badgesContainerRef} className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-20 w-full max-w-5xl">
                     {features.map((f, i) => (
                         <div key={i} className="showcase-badge bg-render-dark border-4 border-black flat-shadow p-6 flex flex-col items-center text-center group transition-colors hover:bg-render-black">
                             <div className={`${f.color} text-black p-4 mb-4 border-2 border-black rotate-3 group-hover:rotate-0 transition-transform`}>

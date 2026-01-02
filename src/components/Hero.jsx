@@ -83,8 +83,8 @@ const Hero = () => {
             id="hero"
             className="relative min-h-[110vh] flex items-center justify-center overflow-hidden bg-render-black pt-20"
         >
-            {/* Geometric Accent Shapes */}
-            <div ref={shapesRef} className="absolute inset-0 pointer-events-none overflow-hidden">
+            {/* Geometric Accent Shapes - Hidden on mobile to prevent text overlap */}
+            <div ref={shapesRef} className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block">
                 <div className="accent-shape absolute top-1/4 left-10 w-32 h-32 bg-electric-blue/10 border-4 border-electric-blue -rotate-12" />
                 <div className="accent-shape absolute top-3/4 right-20 w-48 h-48 bg-electric-purple/10 border-4 border-electric-purple rotate-45" />
                 <div className="accent-shape absolute bottom-20 left-1/3 w-16 h-16 bg-electric-green border-2 border-black flat-shadow" />
@@ -92,7 +92,7 @@ const Hero = () => {
 
             <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
                 {/* Text Content */}
-                <div ref={textRef} className="space-y-8 order-2 lg:order-1">
+                <div ref={textRef} className="space-y-8 order-1 relative z-20">
                     <div className="hero-text">
                         <span
                             className="inline-block px-4 py-1 bg-electric-blue text-black font-black uppercase tracking-widest text-xs mb-4 border-2 border-black flat-shadow cursor-pointer"
@@ -101,7 +101,7 @@ const Hero = () => {
                         >
                             CURATED VISUALS
                         </span>
-                        <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.9] uppercase italic">
+                        <h1 className="text-[var(--text-fluid-h1)] font-black tracking-tighter leading-[0.9] uppercase italic">
                             Visuals <br />
                             <span className="text-electric-blue">With Soul.</span>
                         </h1>
@@ -115,13 +115,13 @@ const Hero = () => {
                     <div className="hero-text pt-4 flex flex-wrap gap-4">
                         <MagneticButton
                             onClick={() => window.dispatchEvent(new CustomEvent('open-request-drawer'))}
-                            className="bg-white text-black px-8 py-5 text-xl font-black uppercase border-4 border-black flat-shadow-blue hover:translate-x-[-4px] hover:translate-y-[-4px] hover:shadow-[12px_12px_0px_var(--color-electric-blue)] transition-all flex items-center gap-3 active:translate-x-0 active:translate-y-0 active:shadow-none"
+                            className="bg-white text-black px-6 py-4 md:px-8 md:py-5 text-lg md:text-xl font-black uppercase border-4 border-black flat-shadow-blue hover:translate-x-[-4px] hover:translate-y-[-4px] hover:shadow-[12px_12px_0px_var(--color-electric-blue)] transition-all flex items-center gap-3 active:translate-x-0 active:translate-y-0 active:shadow-none w-full md:w-auto justify-center"
                         >
                             Start Request <ArrowRight size={24} strokeWidth={3} />
                         </MagneticButton>
                         <a
                             href="#process"
-                            className="px-8 py-5 text-xl font-black uppercase border-4 border-white/20 hover:border-white transition-colors flex items-center italic"
+                            className="px-6 py-4 md:px-8 md:py-5 text-lg md:text-xl font-black uppercase border-4 border-white/20 hover:border-white transition-colors flex items-center italic justify-center w-full md:w-auto"
                         >
                             How it works
                         </a>
@@ -129,7 +129,7 @@ const Hero = () => {
                 </div>
 
                 {/* 2D Motion Grid */}
-                <div ref={gridRef} className="order-1 lg:order-2 grid grid-cols-2 gap-4 h-[500px] md:h-[600px]">
+                <div ref={gridRef} className="order-2 grid grid-cols-2 gap-4 h-[400px] md:h-[600px] relative z-10">
                     {images.map((img, i) => (
                         <div
                             key={i}
