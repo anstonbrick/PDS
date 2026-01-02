@@ -17,8 +17,9 @@ const RequestForm = () => {
     const overlayRef = useRef(null);
 
     const generateKey = () => {
-        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
-        return Array.from({ length: 12 }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
+        // Use only alphanumeric characters to avoid URL encoding issues (no #, %, & etc.)
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        return Array.from({ length: 14 }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
     };
 
     useEffect(() => {

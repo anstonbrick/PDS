@@ -72,10 +72,13 @@ authDb.serialize(() => {
     });
 
     // Referral Codes Table
+    // Referral Codes Table
     authDb.run(`CREATE TABLE IF NOT EXISTS referral_codes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         code TEXT UNIQUE NOT NULL,
         description TEXT,
+        usage_limit INTEGER,
+        expiration_date DATETIME,
         created_by TEXT, -- admin username
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`, (err) => {
@@ -83,15 +86,19 @@ authDb.serialize(() => {
             console.log('Referral Codes table ready.');
             // Seed default codes
             const seedCodes = [
-                ['PDS2026', 'Legacy Default Code'],
-                ['ADMIN', 'System Admin Code'],
-                ['VIP', 'VIP Access Code']
+                ['PDS2026', 'Legacy Default Code', null, null],
+                ['ADMIN', 'System Admin Code', null, null],
+                ['VIP', 'VIP Access Code', 100, '2027-01-01']
             ];
-            seedCodes.forEach(([code, desc]) => {
-                authDb.run(`INSERT OR IGNORE INTO referral_codes (code, description, created_by) VALUES (?, ?, 'system')`, [code, desc]);
+            seedCodes.forEach(([code, desc, limit, exp]) => {
+                authDb.run(`INSERT OR IGNORE INTO referral_codes (code, description, usage_limit, expiration_date, created_by) VALUES (?, ?, ?, ?, 'system')`, [code, desc, limit, exp]);
             });
         }
     });
+
+    // Migrations for new columns
+    authDb.run("ALTER TABLE referral_codes ADD COLUMN usage_limit INTEGER", () => { });
+    authDb.run("ALTER TABLE referral_codes ADD COLUMN expiration_date DATETIME", () => { });
 
     // Ensure Admin User Exists
     const adminUsername = 'admin';
@@ -136,6 +143,18 @@ const isAdmin = (req, res, next) => {
 // Health Check
 app.get('/api/status', (req, res) => {
     res.json({ status: 'online', timestamp: new Date() });
+});
+
+// Data Tracking (Public)
+app.get('/api/tracking/:access_key', (req, res) => {
+    const { access_key } = req.params;
+
+    const sql = `SELECT id, character_name, series_source, status, timestamp, operator_name FROM requests WHERE access_key = ?`;
+    db.get(sql, [access_key], (err, row) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
+        if (!row) return res.status(404).json({ error: 'Invalid Access Key' });
+        res.json(row);
+    });
 });
 
 // Submit Request (Public)
@@ -208,21 +227,49 @@ app.post('/api/auth/signup', async (req, res) => {
             return res.status(403).json({ error: 'Invalid Referral Code' });
         }
 
-        try {
-            const password_hash = await bcrypt.hash(password, 10);
-            // Default role is 'user'
-            const sql = `INSERT INTO users (username, password_hash, referral_code, role) VALUES (?, ?, ?, 'user')`;
-            authDb.run(sql, [username, password_hash, referral_code], function (err) {
-                if (err) {
-                    if (err.message.includes('UNIQUE constraint failed')) {
-                        return res.status(409).json({ error: 'Username already exists' });
-                    }
-                    return res.status(500).json({ error: 'Database error during signup' });
+        // Check Expiration
+        if (row.expiration_date) {
+            const expDate = new Date(row.expiration_date);
+            if (new Date() > expDate) {
+                return res.status(403).json({ error: 'Referral Code has expired' });
+            }
+        }
+
+        // Check Usage Limit
+        if (row.usage_limit) {
+            const countSql = `SELECT COUNT(*) as count FROM users WHERE referral_code = ?`;
+            authDb.get(countSql, [referral_code], async (err, usageRow) => {
+                if (err) return res.status(500).json({ error: 'Database error checking usage' });
+
+                if (usageRow.count >= row.usage_limit) {
+                    return res.status(403).json({ error: 'Referral Code usage limit reached' });
                 }
-                res.status(201).json({ message: 'User created successfully', userId: this.lastID });
+
+                // Proceed with Signup
+                createAccount();
             });
-        } catch (err) {
-            res.status(500).json({ error: 'Server error' });
+        } else {
+            // No limit, proceed
+            createAccount();
+        }
+
+        async function createAccount() {
+            try {
+                const password_hash = await bcrypt.hash(password, 10);
+                // Default role is 'user'
+                const sql = `INSERT INTO users (username, password_hash, referral_code, role) VALUES (?, ?, ?, 'user')`;
+                authDb.run(sql, [username, password_hash, referral_code], function (err) {
+                    if (err) {
+                        if (err.message.includes('UNIQUE constraint failed')) {
+                            return res.status(409).json({ error: 'Username already exists' });
+                        }
+                        return res.status(500).json({ error: 'Database error during signup' });
+                    }
+                    res.status(201).json({ message: 'User created successfully', userId: this.lastID });
+                });
+            } catch (err) {
+                res.status(500).json({ error: 'Server error' });
+            }
         }
     });
 });
@@ -330,7 +377,7 @@ app.get('/api/admin/users', authenticateToken, isAdmin, (req, res) => {
 // Referral Codes Management
 app.get('/api/admin/referrals', authenticateToken, isAdmin, (req, res) => {
     // Get all codes
-    authDb.all("SELECT * FROM referral_codes", [], async (err, codes) => {
+    authDb.all("SELECT * FROM referral_codes ORDER BY created_at DESC", [], async (err, codes) => {
         if (err) return res.status(500).json({ error: err.message });
 
         // Calculate usage for each code
@@ -348,11 +395,11 @@ app.get('/api/admin/referrals', authenticateToken, isAdmin, (req, res) => {
 });
 
 app.post('/api/admin/referrals', authenticateToken, isAdmin, (req, res) => {
-    const { code, description } = req.body;
+    const { code, description, usage_limit, expiration_date } = req.body;
     if (!code) return res.status(400).json({ error: 'Code is required' });
 
-    authDb.run("INSERT INTO referral_codes (code, description, created_by) VALUES (?, ?, ?)",
-        [code, description, req.user.username],
+    authDb.run("INSERT INTO referral_codes (code, description, usage_limit, expiration_date, created_by) VALUES (?, ?, ?, ?, ?)",
+        [code, description, usage_limit || null, expiration_date || null, req.user.username],
         function (err) {
             if (err) {
                 if (err.message.includes('UNIQUE constraint failed')) {
@@ -360,15 +407,39 @@ app.post('/api/admin/referrals', authenticateToken, isAdmin, (req, res) => {
                 }
                 return res.status(500).json({ error: err.message });
             }
-            res.status(201).json({ id: this.lastID, code, description });
+            res.status(201).json({ id: this.lastID, code, description, usage_limit, expiration_date });
         }
     );
+});
+
+app.delete('/api/admin/referrals/:id', authenticateToken, isAdmin, (req, res) => {
+    const { id } = req.params;
+    authDb.run("DELETE FROM referral_codes WHERE id = ?", [id], function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'Referral code deleted', changes: this.changes });
+    });
+});
+
+app.get('/api/admin/referrals/:id/users', authenticateToken, isAdmin, (req, res) => {
+    const { id } = req.params;
+
+    // First get the code string
+    authDb.get("SELECT code FROM referral_codes WHERE id = ?", [id], (err, row) => {
+        if (err) return res.status(500).json({ error: "Database error" });
+        if (!row) return res.status(404).json({ error: "Code not found" });
+
+        const code = row.code;
+        authDb.all("SELECT id, username, created_at FROM users WHERE referral_code = ? ORDER BY created_at DESC", [code], (err, users) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json(users);
+        });
+    });
 });
 
 
 // Start Server
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server running on http://localhost:${PORT} [TRACKING ENABLED]`);
 });
 
 // Graceful Custom Shutdown

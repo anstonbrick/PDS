@@ -1,9 +1,11 @@
 import React, { Suspense, lazy, useLayoutEffect, useCallback, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 
+// Lazy Load Components
 const VisualProof = lazy(() => import('./components/VisualProof'));
 const Showcase = lazy(() => import('./components/Showcase'));
 const ProcessScroll = lazy(() => import('./components/ProcessScroll'));
@@ -12,6 +14,9 @@ const FAB = lazy(() => import('./components/FAB'));
 
 import AuthScreen from './components/Auth/AuthScreen';
 import LoadingScreen from './components/LoadingScreen';
+import AdminLogin from './components/admin/AdminLogin';
+import AdminDashboard from './components/admin/AdminDashboard';
+const DeliveryTracking = lazy(() => import('./components/DeliveryTracking'));
 
 const LoadingFallback = () => (
   <div className="h-20 w-full flex items-center justify-center bg-render-black">
@@ -29,28 +34,23 @@ gsap.config({
   autoSleep: 60
 });
 
-// Performance: Ticker settings for smoother high-refresh screens
+// Performance: Ticker settings
 gsap.ticker.fps(120);
 gsap.ticker.lagSmoothing(500, 33);
 
-function App() {
+// --- MAIN LANDING PAGE COMPONENT (Original App Logic) ---
+const LandingPage = () => {
   // Performance: Use ref for animation frame tracking
   const rafId = useRef(null);
   const mousePos = useRef({ x: 0, y: 0 });
 
   // Auth & Loading State
-  // Check local storage for basic persistence
   const [user, setUser] = React.useState(() => {
     const saved = localStorage.getItem('pds_user');
     return saved ? JSON.parse(saved) : null;
   });
 
-  // If user is already logged in, we might still want to show loading screen briefly or skip it?
-  // Request says "make a loading screen after log in". 
-  // If refreshing, maybe show it again? Let's show it on mount if logged in, or after login.
   const [showLoading, setShowLoading] = React.useState(!!user);
-
-  // If not logged in, showAuth is implied by !user.
 
   const handleLoginSuccess = (userData) => {
     localStorage.setItem('pds_user', JSON.stringify(userData));
@@ -62,7 +62,7 @@ function App() {
     setShowLoading(false);
   };
 
-  // Performance: Throttled mouse handler using RAF with faster update
+  // Performance: Throttled mouse handler using RAF
   const handleMouseMove = useCallback((e) => {
     mousePos.current = { x: e.clientX, y: e.clientY };
 
@@ -83,8 +83,9 @@ function App() {
     });
   }, []);
 
-
   useLayoutEffect(() => {
+    if (!user) return; // Don't run animations if on auth screen
+
     // Performance: Optimize scroll progress with reduced scrub
     gsap.to('#scroll-progress', {
       scaleX: 1,
@@ -93,28 +94,25 @@ function App() {
         trigger: 'body',
         start: 'top top',
         end: 'bottom bottom',
-        scrub: 0.5, // Increased for smoother performance
+        scrub: 0.5,
       }
     });
 
     // Performance: Use passive listener for cursor follower
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
 
-    // Performance: Refresh ScrollTrigger periodically to handle lazy shifts
+    // Performance: Refresh ScrollTrigger periodically
     const refreshInterval = setInterval(() => {
       ScrollTrigger.refresh();
     }, 2000);
 
-    // Performance: Cleanup
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
-      if (rafId.current) {
-        cancelAnimationFrame(rafId.current);
-      }
+      if (rafId.current) cancelAnimationFrame(rafId.current);
       clearInterval(refreshInterval);
       ScrollTrigger.getAll().forEach(st => st.kill());
     };
-  }, [handleMouseMove]);
+  }, [handleMouseMove, user]);
 
   if (!user) {
     return (
@@ -150,6 +148,33 @@ function App() {
         <FAB />
       </Suspense>
     </div>
+  );
+};
+
+// --- ROOT APP COMPONENT (Routing) ---
+function App() {
+  return (
+    <Router>
+      <Routes>
+        {/* Main Site */}
+        <Route path="/" element={<LandingPage />} />
+
+        {/* Admin Routes */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+
+        {/* Tracking Route */}
+        <Route path="/tracking" element={
+          <Suspense fallback={<LoadingFallback />}>
+            <DeliveryTracking />
+          </Suspense>
+        } />
+
+        {/* Catch-all: Redirect to Home */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
   );
 }
 

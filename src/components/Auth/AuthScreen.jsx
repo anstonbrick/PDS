@@ -150,13 +150,22 @@ const AuthScreen = ({ onLoginSuccess }) => {
                     </button>
                 </form>
 
-                <div className="mt-8 text-center">
+                <div className="mt-8 text-center space-y-4">
                     <button
                         onClick={switchMode}
                         className="text-xs text-gray-500 hover:text-white transition-colors uppercase tracking-widest border-b border-transparent hover:border-gray-500 pb-0.5"
                     >
                         {isLogin ? 'Need an account? Register' : 'Already have access? Login'}
                     </button>
+
+                    <div className="pt-4 border-t border-white/10">
+                        <a
+                            href="/tracking"
+                            className="text-[10px] bg-white/5 hover:bg-white/10 text-electric-blue py-2 px-4 rounded border border-electric-blue/20 hover:border-electric-blue/50 transition-all uppercase tracking-widest font-mono"
+                        >
+                            Track Delivery Status
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
