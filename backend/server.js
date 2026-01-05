@@ -66,6 +66,10 @@ const statusUpdateSchema = z.object({
     reason: z.string().optional()
 });
 
+const feedbackSchema = z.object({
+    message: z.string().min(1).max(1000)
+});
+
 // --- Database Setup ---
 const dbPath = path.resolve(__dirname, 'pds_requests.db');
 const db = new sqlite3.Database(dbPath, (err) => {
@@ -101,6 +105,12 @@ db.serialize(() => {
     db.run("ALTER TABLE requests ADD COLUMN rejection_reason TEXT", (err) => { /* Ignore duplicate column error */ });
     db.run("ALTER TABLE requests ADD COLUMN updated_at DATETIME", (err) => { /* Ignore duplicate column error */ });
     db.run("ALTER TABLE requests ADD COLUMN user_id INTEGER", (err) => { /* Ignore duplicate column error */ });
+
+    db.run(`CREATE TABLE IF NOT EXISTS beta_feedback (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        message TEXT NOT NULL,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
 });
 
 authDb.serialize(() => {
@@ -158,10 +168,13 @@ const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
-    if (token == null) return res.sendStatus(401);
+    if (token == null) return res.status(401).json({ error: 'Unauthorized', code: 'UNAUTHORIZED' });
 
     jwt.verify(token, JWT_SECRET, (err, user) => {
-        if (err) return res.sendStatus(403);
+        if (err) {
+            console.error('JWT ERROR:', err.message, 'Secret used:', JWT_SECRET.substring(0, 3) + '...');
+            return res.status(403).json({ error: 'Forbidden: ' + err.message, code: 'FORBIDDEN' });
+        }
         req.user = user;
         next();
     });
@@ -405,6 +418,21 @@ app.get('/api/admin/referrals/:id/users', authenticateToken, isAdmin, (req, res)
             if (err) return res.status(500).json({ error: err.message });
             res.json(users);
         });
+    });
+});
+
+app.post('/api/feedback', validate(feedbackSchema), (req, res) => {
+    const { message } = req.body;
+    db.run("INSERT INTO beta_feedback (message) VALUES (?)", [message], function (err) {
+        if (err) return res.status(500).json({ error: 'Database error' });
+        res.status(201).json({ message: 'Feedback received', id: this.lastID });
+    });
+});
+
+app.get('/api/admin/feedback', authenticateToken, isAdmin, (req, res) => {
+    db.all("SELECT * FROM beta_feedback ORDER BY timestamp DESC", [], (err, rows) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
+        res.json(rows);
     });
 });
 

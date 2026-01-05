@@ -38,6 +38,13 @@ const ReferralManager = () => {
     const handleCreate = async (e) => {
         e.preventDefault();
         setError('');
+
+        const payload = {
+            ...newCode,
+            usage_limit: newCode.usage_limit ? parseInt(newCode.usage_limit, 10) : undefined,
+            expiration_date: newCode.expiration_date ? new Date(newCode.expiration_date).toISOString() : null
+        };
+
         try {
             const token = localStorage.getItem('adminToken');
             const response = await fetch('/api/admin/referrals', {
@@ -46,7 +53,7 @@ const ReferralManager = () => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(newCode)
+                body: JSON.stringify(payload)
             });
             const data = await response.json();
             if (response.ok) {

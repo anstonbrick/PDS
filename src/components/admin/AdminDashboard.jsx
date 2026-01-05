@@ -4,6 +4,7 @@ import DashboardHome from './DashboardHome';
 import RequestsTable from './RequestsTable';
 import UsersTable from './UsersTable';
 import ReferralManager from './ReferralManager';
+import FeedbackViewer from './FeedbackViewer';
 
 const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('dashboard');
@@ -18,6 +19,8 @@ const AdminDashboard = () => {
                 return <UsersTable />;
             case 'referrals':
                 return <ReferralManager />;
+            case 'feedback':
+                return <FeedbackViewer />;
             default:
                 return <DashboardHome />;
         }

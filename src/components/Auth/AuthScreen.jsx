@@ -61,7 +61,7 @@ const AuthScreen = ({ onLoginSuccess }) => {
             if (response.ok) {
                 // Success
                 if (isLogin) {
-                    onLoginSuccess(data.user);
+                    onLoginSuccess({ ...data.user, token: data.token });
                 } else {
                     // After signup, maybe auto login or ask to login
                     // For now, auto switch to login or just login directly
@@ -94,6 +94,16 @@ const AuthScreen = ({ onLoginSuccess }) => {
                 <p className="text-center text-gray-400 text-sm mb-8 tracking-wider">
                     {isLogin ? 'ENTER YOUR CREDENTIALS' : 'SECURE REGISTRATION'}
                 </p>
+
+                {/* Open Beta Banner */}
+                <div className="mb-6 bg-electric-blue/10 border border-electric-blue/30 p-3 rounded-lg text-center">
+                    <p className="text-electric-blue text-xs font-bold tracking-widest uppercase mb-1">
+                        Open Beta Access
+                    </p>
+                    <p className="text-gray-400 text-[10px]">
+                        Use code <span className="text-white font-mono font-bold">OPENBETA</span> for instant access
+                    </p>
+                </div>
 
                 <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
                     <div>

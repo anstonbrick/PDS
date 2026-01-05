@@ -11,6 +11,7 @@ const Showcase = lazy(() => import('./components/Showcase'));
 const ProcessScroll = lazy(() => import('./components/ProcessScroll'));
 const RequestForm = lazy(() => import('./components/RequestForm'));
 const FAB = lazy(() => import('./components/FAB'));
+const BetaOverlay = lazy(() => import('./components/BetaOverlay'));
 
 import AuthScreen from './components/Auth/AuthScreen';
 import LoadingScreen from './components/LoadingScreen';
@@ -155,6 +156,7 @@ const LandingPage = () => {
       <Suspense fallback={null}>
         <RequestForm />
         <FAB />
+        <BetaOverlay />
       </Suspense>
     </div>
   );
