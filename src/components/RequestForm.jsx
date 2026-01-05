@@ -72,7 +72,16 @@ const RequestForm = () => {
         }
     }, [step, isOpen]);
 
-    const handleNext = () => setStep(prev => prev + 1);
+    const handleNext = () => {
+        if (step === 4) {
+            const val = formData.notes.toUpperCase();
+            if (!val.includes("SAFE") && !val.includes("NOT SAFE")) {
+                alert("PROTOCOL REQUIRED: Please type 'SAFE' or 'NOT SAFE' in the text area to conduct safety verification.");
+                return;
+            }
+        }
+        setStep(prev => prev + 1);
+    };
     const handleBack = () => setStep(prev => prev - 1);
     const closeDrawer = () => {
         setIsOpen(false);
@@ -84,12 +93,28 @@ const RequestForm = () => {
     };
 
     const [isLoading, setIsLoading] = useState(false);
+    const [submissionError, setSubmissionError] = useState(null);
 
     const handleSubmit = async (e) => {
         if (e) e.preventDefault();
-
+        setSubmissionError(null);
         setIsLoading(true);
         const key = generateKey();
+
+        // Retrieve token safely
+        let token = '';
+        try {
+            const userData = JSON.parse(localStorage.getItem('pds_user') || '{}');
+            token = userData.token || '';
+        } catch (e) {
+            console.error('Failed to parse user data:', e);
+        }
+
+        if (!token) {
+            setSubmissionError('SESSION_EXPIRED: Please login again.');
+            setIsLoading(false);
+            return;
+        }
 
         // Prepare payload with snake_case to match DB
         const payload = {
@@ -108,14 +133,20 @@ const RequestForm = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${JSON.parse(localStorage.getItem('pds_user') || '{}').token}`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify(payload),
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Submission failed');
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Submission failed');
+                } else {
+                    const textError = await response.text();
+                    throw new Error(textError || `Server error: ${response.status}`);
+                }
             }
 
             // critical: Set key only after successful save
@@ -123,7 +154,7 @@ const RequestForm = () => {
             setStep(6);
         } catch (error) {
             console.error('Request Error:', error);
-            alert(`TRANSMISSION_ERROR: ${error.message}`);
+            setSubmissionError(error.message);
         } finally {
             setIsLoading(false);
         }
@@ -346,10 +377,10 @@ const RequestForm = () => {
                                     <div className="h-1 w-20 bg-blue-500" />
                                 </div>
                                 <div className="space-y-4">
-                                    <label className="block text-blue-500 font-black uppercase text-sm tracking-widest">Encoded Instructions</label>
+                                    <label className="block text-blue-500 font-black uppercase text-sm tracking-widest">SFW or NSFW? (TYPE "SAFE" OR "NOT SAFE")</label>
                                     <textarea
                                         className="w-full bg-render-dark border-2 border-white/10 p-6 text-white focus:border-blue-500 focus:outline-none min-h-[250px] resize-none flat-shadow"
-                                        placeholder="SPECIFY_REQUIREMENTS: Poses, Lighting, Resolution..."
+                                        placeholder="REQUIRED: YOU MUST TYPE 'SAFE' OR 'NOT SAFE' TO PROCEED. Add other instructions after."
                                         value={formData.notes}
                                         onChange={e => setFormData({ ...formData, notes: e.target.value })}
                                     />
@@ -465,16 +496,34 @@ const RequestForm = () => {
                                 NEXT_STEP <ArrowRight size={24} strokeWidth={3} />
                             </button>
                         ) : step === 5 ? (
-                            <button
-                                onClick={handleSubmit}
-                                disabled={!formData.noAi || isLoading}
-                                className={`flex-1 font-black py-4 uppercase italic tracking-tighter text-2xl transition-all flex items-center justify-center gap-4 ${formData.noAi && !isLoading
-                                    ? 'bg-red-500 text-white hover:bg-white hover:text-black flat-shadow'
-                                    : 'bg-gray-800 text-gray-600 cursor-not-allowed border-2 border-gray-700'
-                                    }`}
-                            >
-                                {isLoading ? 'TRANSMITTING...' : 'INITIATE_DROP'}
-                            </button>
+                            <div className="flex-1 flex flex-col">
+                                {submissionError && (
+                                    <div className="bg-red-500/10 border-2 border-red-500 p-4 mb-4 flex items-center gap-4 animate-pulse">
+                                        <AlertCircle className="text-red-500 shrink-0" size={24} />
+                                        <div className="flex-1">
+                                            <p className="text-red-500 font-black uppercase text-xs tracking-widest">TRANSMISSION_FAILURE</p>
+                                            <p className="text-white text-sm font-bold uppercase tracking-tight italic font-mono">{submissionError}</p>
+                                        </div>
+                                    </div>
+                                )}
+                                {isLoading ? (
+                                    <div className="flex-1 flex flex-col items-center justify-center gap-4 py-4 bg-render-dark border-2 border-white/10">
+                                        <div className="w-12 h-1 bg-electric-blue animate-pulse" />
+                                        <span className="text-electric-blue font-black uppercase italic tracking-tighter">ENCRYPTING_PACKETS...</span>
+                                    </div>
+                                ) : (
+                                    <button
+                                        onClick={handleSubmit}
+                                        disabled={!formData.noAi || isLoading}
+                                        className={`flex-1 font-black py-4 uppercase italic tracking-tighter text-2xl transition-all flex items-center justify-center gap-4 ${formData.noAi && !isLoading
+                                            ? 'bg-red-500 text-white hover:bg-white hover:text-black flat-shadow'
+                                            : 'bg-gray-800 text-gray-600 cursor-not-allowed border-2 border-gray-700'
+                                            }`}
+                                    >
+                                        INITIATE_DROP
+                                    </button>
+                                )}
+                            </div>
                         ) : (
                             <button
                                 onClick={closeDrawer}
@@ -486,7 +535,7 @@ const RequestForm = () => {
                     </div>
                 </div>
 
-            </div>
+            </div >
         </>
     );
 };
