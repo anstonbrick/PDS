@@ -168,6 +168,14 @@ const AuthScreen = ({ onLoginSuccess }) => {
                     </div>
                 </div>
             </div>
+            {/* Disclaimer Footer */}
+            <div className="absolute bottom-6 left-0 w-full text-center px-4 z-20 pointer-events-none">
+                <p className="text-gray-600 text-[10px] font-bold uppercase tracking-widest leading-relaxed">
+                    RenderDrop.uk is a personal hobby project. <br className="hidden sm:block" />
+                    We are not affiliated with the 3D rendering company at RenderDrop.com. <br className="hidden sm:block" />
+                    We just like anime and cheap domains.
+                </p>
+            </div>
         </div>
     );
 };

@@ -143,6 +143,14 @@ const LandingPage = () => {
         </Suspense>
       </main>
 
+      <footer className="w-full py-12 px-4 text-center bg-render-black border-t border-white/10 relative z-40">
+        <p className="text-gray-600 text-[10px] md:text-xs font-bold uppercase tracking-widest max-w-2xl mx-auto leading-relaxed">
+          RenderDrop.uk is a personal hobby project. <br className="hidden md:block" />
+          We are not affiliated with the 3D rendering company at RenderDrop.com. <br className="hidden md:block" />
+          We just like anime and cheap domains.
+        </p>
+      </footer>
+
       <Suspense fallback={null}>
         <RequestForm />
         <FAB />

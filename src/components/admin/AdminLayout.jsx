@@ -40,8 +40,8 @@ const AdminLayout = ({ children, activeTab, setActiveTab }) => {
                             key={item.id}
                             onClick={() => setActiveTab(item.id)}
                             className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${activeTab === item.id
-                                    ? 'bg-white text-black font-semibold'
-                                    : 'text-zinc-400 hover:bg-zinc-800 hover:text-white'
+                                ? 'bg-white text-black font-semibold'
+                                : 'text-zinc-400 hover:bg-zinc-800 hover:text-white'
                                 }`}
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -52,7 +52,7 @@ const AdminLayout = ({ children, activeTab, setActiveTab }) => {
                     ))}
                 </nav>
 
-                <div className="p-4 border-t border-zinc-800">
+                <div className="p-4 border-t border-zinc-800 space-y-4">
                     <div className="flex items-center space-x-3 px-4 py-3 mb-2">
                         <div className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center">
                             {user.username?.[0]?.toUpperCase()}
@@ -71,6 +71,15 @@ const AdminLayout = ({ children, activeTab, setActiveTab }) => {
                         </svg>
                         <span>Sign Out</span>
                     </button>
+
+                    {/* Disclaimer Footer */}
+                    <div className="pt-4 border-t border-zinc-900 border-dashed">
+                        <p className="text-zinc-700 text-[9px] font-bold uppercase tracking-widest leading-relaxed text-center opacity-50">
+                            RenderDrop.uk is a personal hobby project. <br />
+                            We are not affiliated with the 3D rendering company at RenderDrop.com. <br />
+                            We just like anime and cheap domains.
+                        </p>
+                    </div>
                 </div>
             </div>
 
