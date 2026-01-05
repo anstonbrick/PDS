@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Clock, CheckCircle, XCircle, AlertCircle, Package, Search, ChevronDown, Calendar } from 'lucide-react';
 
 const RequestsTable = () => {
@@ -9,12 +10,22 @@ const RequestsTable = () => {
     const [rejectionReason, setRejectionReason] = useState('');
     const [updatingId, setUpdatingId] = useState(null);
 
+    const navigate = useNavigate();
+
     const fetchRequests = async () => {
         try {
             const token = localStorage.getItem('adminToken');
             const response = await fetch('/api/admin/requests', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+
+            if (response.status === 401 || response.status === 403) {
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('adminUser');
+                navigate('/admin/login');
+                return;
+            }
+
             if (response.ok) {
                 const data = await response.json();
                 setRequests(data);

@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const DashboardHome = () => {
     const [stats, setStats] = useState({ requests: 0, users: 0, referral_codes: 0 });
     const [loading, setLoading] = useState(true);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -12,6 +15,14 @@ const DashboardHome = () => {
                 const response = await fetch('/api/admin/stats', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
+
+                if (response.status === 401 || response.status === 403) {
+                    localStorage.removeItem('adminToken');
+                    localStorage.removeItem('adminUser');
+                    navigate('/admin/login');
+                    return;
+                }
+
                 if (response.ok) {
                     const data = await response.json();
                     setStats(data);
@@ -24,7 +35,7 @@ const DashboardHome = () => {
         };
 
         fetchStats();
-    }, []);
+    }, [navigate]);
 
     const cards = [
         { label: 'Total Requests', value: stats.requests, color: 'from-blue-500 to-cyan-500' },
