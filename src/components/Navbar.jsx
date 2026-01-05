@@ -1,5 +1,5 @@
 import React, { useState, useRef, useLayoutEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, User, LogOut } from 'lucide-react';
 import gsap from 'gsap';
 import MagneticButton from './MagneticButton';
 
@@ -39,6 +39,26 @@ const Navbar = () => {
                                     <div className="absolute inset-0 bg-electric-blue scale-y-0 group-hover:scale-y-100 origin-bottom transition-transform duration-300 -z-0" />
                                 </a>
                             ))}
+                            <div className="h-8 w-[1px] bg-white/10 mx-4" />
+                            <a
+                                href="/dashboard"
+                                className="relative group px-4 py-2 text-sm font-bold uppercase tracking-wider text-electric-blue hover:text-white transition-colors flex items-center gap-2"
+                            >
+                                <User size={16} />
+                                <span className="relative z-10">My Requests</span>
+                                <div className="absolute inset-0 bg-electric-blue/20 scale-y-0 group-hover:scale-y-100 origin-bottom transition-transform duration-300 -z-0" />
+                            </a>
+                            <button
+                                onClick={() => {
+                                    localStorage.removeItem('pds_user');
+                                    window.location.href = '/';
+                                }}
+                                className="relative group px-4 py-2 text-sm font-bold uppercase tracking-wider text-red-500 hover:text-white transition-colors flex items-center gap-2"
+                            >
+                                <LogOut size={16} />
+                                <span className="relative z-10">Logout</span>
+                                <div className="absolute inset-0 bg-red-500 scale-y-0 group-hover:scale-y-100 origin-bottom transition-transform duration-300 -z-0" />
+                            </button>
                             <div className="pl-6">
                                 <MagneticButton
                                     className="bg-electric-blue text-black px-6 py-2 font-black uppercase tracking-tighter border-2 border-black flat-shadow hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] transition-all"
@@ -79,6 +99,21 @@ const Navbar = () => {
                                 {item}
                             </a>
                         ))}
+                        <a
+                            href="/dashboard"
+                            className="block text-4xl font-black uppercase tracking-tighter text-electric-blue hover:text-white hover:italic py-3 transition-colors border-b-2 border-black/10 flex items-center gap-4"
+                        >
+                            <User size={32} /> My Requests
+                        </a>
+                        <button
+                            onClick={() => {
+                                localStorage.removeItem('pds_user');
+                                window.location.href = '/';
+                            }}
+                            className="w-full text-left block text-4xl font-black uppercase tracking-tighter text-red-500 hover:text-white hover:italic py-3 transition-colors border-b-2 border-black/10 flex items-center gap-4"
+                        >
+                            <LogOut size={32} /> Logout
+                        </button>
                         <button
                             onClick={() => {
                                 setIsOpen(false);

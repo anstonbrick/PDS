@@ -100,6 +100,7 @@ db.serialize(() => {
     db.run("ALTER TABLE requests ADD COLUMN status TEXT DEFAULT 'pending'", (err) => { /* Ignore duplicate column error */ });
     db.run("ALTER TABLE requests ADD COLUMN rejection_reason TEXT", (err) => { /* Ignore duplicate column error */ });
     db.run("ALTER TABLE requests ADD COLUMN updated_at DATETIME", (err) => { /* Ignore duplicate column error */ });
+    db.run("ALTER TABLE requests ADD COLUMN user_id INTEGER", (err) => { /* Ignore duplicate column error */ });
 });
 
 authDb.serialize(() => {
@@ -199,7 +200,7 @@ app.get('/api/tracking/:access_key', (req, res) => {
     });
 });
 
-app.post('/api/request', validate(requestSchema), (req, res) => {
+app.post('/api/request', authenticateToken, validate(requestSchema), (req, res) => {
     // Sanitized body available via req.body (express.json is safe, but zod validates type)
     const {
         access_key, operator_name, character_name, series_source,
@@ -209,12 +210,13 @@ app.post('/api/request', validate(requestSchema), (req, res) => {
     const sql = `INSERT INTO requests (
         access_key, operator_name, character_name, series_source, 
         sourcing_vibe, contact_method, contact_handle, notes,
-        updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`;
+        updated_at, user_id
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?)`;
 
     const params = [
         access_key, operator_name, character_name, series_source,
-        JSON.stringify(sourcing_vibe), contact_method, contact_handle, notes
+        JSON.stringify(sourcing_vibe), contact_method, contact_handle, notes,
+        req.user.id
     ];
 
     db.run(sql, params, function (err) {
@@ -230,6 +232,14 @@ app.post('/api/request', validate(requestSchema), (req, res) => {
             id: this.lastID,
             access_key: access_key
         });
+    });
+});
+
+app.get('/api/user/requests', authenticateToken, (req, res) => {
+    const sql = `SELECT * FROM requests WHERE user_id = ? ORDER BY timestamp DESC`;
+    db.all(sql, [req.user.id], (err, rows) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
+        res.json(rows);
     });
 });
 

@@ -1,28 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { Search, Package, Clock, CheckCircle, XCircle, AlertCircle, ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 const DeliveryTracking = () => {
-    const [accessKey, setAccessKey] = useState('');
+    const [searchParams] = useSearchParams();
+    const [accessKey, setAccessKey] = useState(searchParams.get('key') || '');
     const [trackingData, setTrackingData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const handleTrack = async (e) => {
-        if (e) e.preventDefault();
-        if (!accessKey.trim()) return;
-
+    const fetchTrackingData = async (key) => {
+        if (!key) return;
         setLoading(true);
         setError(null);
         setTrackingData(null);
-
         try {
-            // Encode the key to handle any existing keys with special characters
-            const safeKey = encodeURIComponent(accessKey.trim());
+            const safeKey = encodeURIComponent(key.trim());
             const response = await fetch(`/api/tracking/${safeKey}`);
             const data = await response.json();
-
             if (response.ok) {
                 setTrackingData(data);
             } else {
@@ -33,6 +29,18 @@ const DeliveryTracking = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    useEffect(() => {
+        const key = searchParams.get('key');
+        if (key) {
+            fetchTrackingData(key);
+        }
+    }, [searchParams]);
+
+    const handleTrack = async (e) => {
+        if (e) e.preventDefault();
+        fetchTrackingData(accessKey);
     };
 
     // Status Badge Helper

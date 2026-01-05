@@ -12,8 +12,10 @@ RenderDrop is a high-performance, aesthetically driven web application designed 
 - **Dual Visual Themes:** Seamlessly switch between "Luxury Acquisition" and "Pixel Perfect Persona" themes.
 - **User Authentication:** Secure signup and login flow with referral code validation and JWT sessions.
 - **Request System:** A multi-step form for users to submit rendering requests, generating unique, cryptographic receipt keys for tracking.
+- **User Dashboard:** A centralized hub for users to view their complete request history, copy access keys, and track status with a single click.
+- **Secure Request Submission:** API-level security ensures all requests are authenticated and securely linked to the user's account.
 - **Admin Panel:** A powerful command center for managing PDS requests with real-time status updates (Reviewing, Approved, Production, etc.), automated UI feedback, and referral code logistics.
-- **Request Tracking System:** Users can monitor their request status in real-time. Features include a visual progress timeline and a secure "denial reason" system for transparent feedback on rejected requests.
+- **Request Tracking System:** Users can monitor their request status in real-time. Features include a visual progress timeline, URL-based tracking (e.g., `?key=...`), and a secure "denial reason" system for transparent feedback.
 - **Enhanced Reliability:** Integrated optimistic UI updates and loading states for admin actions, ensuring a stable and responsive management experience.
 - **Security First:** Implements industry-standard security headers (Helmet), rate limiting, and strict input validation (Zod).
 - **Responsive Design:** Fully optimized for mobile, tablet, and desktop viewing.

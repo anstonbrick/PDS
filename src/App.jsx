@@ -17,6 +17,7 @@ import LoadingScreen from './components/LoadingScreen';
 import AdminLogin from './components/admin/AdminLogin';
 import AdminDashboard from './components/admin/AdminDashboard';
 const DeliveryTracking = lazy(() => import('./components/DeliveryTracking'));
+const UserDashboard = lazy(() => import('./components/UserDashboard'));
 
 const LoadingFallback = () => (
   <div className="h-20 w-full flex items-center justify-center bg-render-black">
@@ -171,6 +172,13 @@ function App() {
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+
+        {/* User Dashboard */}
+        <Route path="/dashboard" element={
+          <Suspense fallback={<LoadingFallback />}>
+            <UserDashboard />
+          </Suspense>
+        } />
 
         {/* Tracking Route */}
         <Route path="/tracking" element={
