@@ -2,12 +2,14 @@ import React, { useLayoutEffect, useRef, useMemo } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { User, Radar, ScanSearch, FolderOpen } from 'lucide-react';
+import { useTranslation } from '../hooks/useTranslation';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const ProcessScroll = () => {
     const sectionRef = useRef(null);
     const containerRef = useRef(null);
+    const { t } = useTranslation();
 
     useLayoutEffect(() => {
         const ctx = gsap.context(() => {
@@ -102,37 +104,37 @@ const ProcessScroll = () => {
     const steps = useMemo(() => [
         {
             icon: <User size={48} />,
-            title: "TRANSMISSION",
-            desc: "Submit request parameters. Series, character, and aesthetic vibe.",
+            title: t('process.steps.1.title'),
+            desc: t('process.steps.1.desc'),
             num: "01",
             color: "bg-electric-blue",
             accent: "border-electric-blue"
         },
         {
             icon: <Radar size={48} />,
-            title: "DEEP SEARCH",
-            desc: "Infiltrating private repositories and boutique art circles.",
+            title: t('process.steps.2.title'),
+            desc: t('process.steps.2.desc'),
             num: "02",
             color: "bg-electric-purple",
             accent: "border-electric-purple"
         },
         {
             icon: <ScanSearch size={48} />,
-            title: "ANALYSIS",
-            desc: "Neural inspection for artifacts. 100% human-verified quality.",
+            title: t('process.steps.3.title'),
+            desc: t('process.steps.3.desc'),
             num: "03",
             color: "bg-electric-green",
             accent: "border-electric-green"
         },
         {
             icon: <FolderOpen size={48} />,
-            title: "DATA DROP",
-            desc: "Encrypted delivery of your high-definition curation package.",
+            title: t('process.steps.4.title'),
+            desc: t('process.steps.4.desc'),
             num: "04",
             color: "bg-white",
             accent: "border-white"
         },
-    ], []);
+    ], [t]);
 
     return (
         <section id="process" ref={sectionRef} className="bg-render-black relative overflow-hidden py-20 md:py-0">
@@ -145,8 +147,8 @@ const ProcessScroll = () => {
                 <div className="relative md:absolute top-0 md:top-20 left-4 md:left-20 z-10 mb-12 px-4 md:px-0">
                     <div className="h-1 w-20 bg-electric-blue mb-4" />
                     <h2 className="text-[var(--text-fluid-h2)] font-black text-white italic uppercase leading-none">
-                        PROCESS<br />
-                        <span className="text-gray-600">FLOW_v3</span>
+                        {t('process.titleLine1')}<br />
+                        <span className="text-gray-600">{t('process.titleLine2')}</span>
                     </h2>
                 </div>
 
@@ -178,7 +180,7 @@ const ProcessScroll = () => {
                                 </div>
 
                                 <div className="flex items-center justify-between border-t-2 border-white/10 pt-6 md:pt-8 mt-6 md:mt-0">
-                                    <span className="text-xs md:text-sm font-black uppercase tracking-widest text-white/40">PROTOCOL_{step.num}</span>
+                                    <span className="text-xs md:text-sm font-black uppercase tracking-widest text-white/40">{t('process.protocol')}_{step.num}</span>
                                     <div className={`w-10 h-10 md:w-12 md:h-12 ${step.color} flex items-center justify-center border-2 border-black`}>
                                         <div className="w-3 h-3 md:w-4 md:h-4 bg-black rotate-45" />
                                     </div>

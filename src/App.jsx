@@ -1,5 +1,6 @@
 import React, { Suspense, lazy, useLayoutEffect, useCallback, useRef } from 'react';
 import gsap from 'gsap';
+import { useTranslation } from './hooks/useTranslation';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
@@ -45,6 +46,7 @@ const LandingPage = () => {
   // Performance: Use ref for animation frame tracking
   const rafId = useRef(null);
   const mousePos = useRef({ x: 0, y: 0 });
+  const { t } = useTranslation();
 
   // Auth & Loading State
   const [user, setUser] = React.useState(() => {
@@ -160,9 +162,9 @@ const LandingPage = () => {
 
       <footer className="w-full py-12 px-4 text-center bg-render-black border-t border-white/10 relative z-40">
         <p className="text-gray-600 text-[10px] md:text-xs font-bold uppercase tracking-widest max-w-2xl mx-auto leading-relaxed">
-          RenderDrop.uk is a personal hobby project. <br className="hidden md:block" />
-          We are not affiliated with the 3D rendering company at RenderDrop.com. <br className="hidden md:block" />
-          We just like anime and cheap domains.
+          {t('footer.line1')} <br className="hidden md:block" />
+          {t('footer.line2')} <br className="hidden md:block" />
+          {t('footer.line3')}
         </p>
       </footer>
 

@@ -1,0 +1,159 @@
+{
+    "nav": {
+        "start": "Start",
+        "quality": "Quality",
+        "showcase": "Showcase",
+        "process": "Process",
+        "login": "Login",
+        "myRequests": "My Requests",
+        "logout": "Logout",
+        "getAccess": "Get Access"
+    },
+    "footer": {
+        "line1": "RenderDrop.uk is a personal hobby project.",
+        "line2": "We are not affiliated with the 3D rendering company at RenderDrop.com.",
+        "line3": "We just like anime and cheap domains."
+    },
+    "hero": {
+        "badge": "CURATED VISUALS",
+        "titleLine1": "Visuals",
+        "titleLine2": "With Soul.",
+        "description": "The definitive source for crystalline 4K anime curation. Manually verified, strictly no AI, pure human artistry.",
+        "startRequest": "Start Request",
+        "howItWorks": "How it works",
+        "scroll": "Scroll"
+    },
+    "visualProof": {
+        "engine": "VERIFICATION ENGINE",
+        "qualityLine1": "PURE QUALITY.",
+        "qualityLine2": "NO COMPROMISE.",
+        "description": "We strip away the artifacts, the blurring, and the soulless algorithmic haze.",
+        "verified": "VERIFIED",
+        "verifiedDesc": "Crystalline 4K • Human Curated",
+        "slop": "SLOP",
+        "slopDesc": "AI Artifacts • Compressed • Generic",
+        "liveComparison": "LIVE_COMPARISON_01"
+    },
+    "showcase": {
+        "engine": "GALLERY ENGINE v2.0",
+        "titleLine1": "ANY FORMAT.",
+        "titleLine2": "NO LIMITS.",
+        "features": {
+            "native4k": "NATIVE 4K",
+            "human": "100% HUMAN",
+            "multiFormat": "MULTI-FORMAT",
+            "curated": "CURATED"
+        },
+        "schematic": "schematic_view_4k"
+    },
+    "process": {
+        "titleLine1": "PROCESS",
+        "titleLine2": "FLOW_v3",
+        "steps": {
+            "1": {
+                "title": "TRANSMISSION",
+                "desc": "Submit request parameters. Series, character, and aesthetic vibe."
+            },
+            "2": {
+                "title": "DEEP SEARCH",
+                "desc": "Infiltrating private repositories and boutique art circles."
+            },
+            "3": {
+                "title": "ANALYSIS",
+                "desc": "Neural inspection for artifacts. 100% human-verified quality."
+            },
+            "4": {
+                "title": "DATA DROP",
+                "desc": "Encrypted delivery of your high-definition curation package."
+            }
+        },
+        "protocol": "PROTOCOL"
+    },
+    "beta": {
+        "title": "Beta Feedback",
+        "placeholder": "Found a bug? Have an idea? Tell us...",
+        "send": "Send Feedback",
+        "sending": "Transmitting...",
+        "successTitle": "Build The Future.",
+        "successDesc": "Thanks for your input."
+    },
+    "fab": {
+        "startRequest": "START_REQUEST"
+    },
+    "requestForm": {
+        "steps": {
+            "1": {
+                "title": "The Subject",
+                "nameLabel": "Your Name",
+                "namePlaceholder": "OPERATOR NAME",
+                "charLabel": "Character Name",
+                "charPlaceholder": "TARGET_CHARACTER",
+                "seriesLabel": "Series / Source",
+                "seriesPlaceholder": "SOURCE_ARCHIVE"
+            },
+            "2": {
+                "title": "The Method",
+                "sourcingLabel": "Select Sourcing Style",
+                "options": {
+                    "analog": {
+                        "label": "ANALOG_RETRIEVAL",
+                        "desc": "Manual film scanning & high-grain retrieval",
+                        "caution": "CAUTION: Manual processing delay (+3 days)"
+                    },
+                    "digital": {
+                        "label": "DIGITAL_EXTRACTION",
+                        "desc": "Sourced from verified digital master archives"
+                    }
+                }
+            },
+            "3": {
+                "title": "Link Protocol",
+                "emailBtn": "EMAIL_COMMS",
+                "socialBtn": "SOCIAL_EXT",
+                "emailLabel": "Receiver Address",
+                "emailPlaceholder": "OPERATOR@ADDRESS.COM",
+                "platformLabel": "Platform Hub",
+                "handleLabel": "Access Handle",
+                "handlePlaceholder": "USER#0000"
+            },
+            "4": {
+                "title": "Data Notes",
+                "label": "SFW or NSFW? (TYPE \"SAFE\" OR \"NOT SAFE\")",
+                "placeholder": "REQUIRED: YOU MUST TYPE 'SAFE' or 'NOT SAFE' TO PROCEED. Add other instructions after."
+            },
+            "5": {
+                "title": "Authorization",
+                "protocolParams": "NO_AI_PROTOCOL",
+                "protocolDesc": "RenderDrop guarantees 100% human-created assets. No generative AI. No neural upscalers. Pure craft.",
+                "confirm": "Confirm Authorization",
+                "confirmDesc": "Hand-curated asset delivery pipeline"
+            },
+            "6": {
+                "title": "Request_Receipt",
+                "labels": {
+                    "subject": "Subject_Link",
+                    "operator": "Operator",
+                    "protocol": "Protocol",
+                    "protocolValue": "SECURE_DROP",
+                    "keyLabel": "Digital_Wallet_Access_Key",
+                    "copyBtn": "COPY_ACCESS_KEY",
+                    "warning": "WARNING: Store this key in a secure location. This is required to retrieve your assets. We do not store this key in cleartext."
+                }
+            }
+        },
+        "validation": {
+            "protocolRequired": "PROTOCOL REQUIRED: Type 'SAFE' or 'NOT SAFE'",
+            "sessionExpired": "SESSION_EXPIRED: Please login again.",
+            "success": "Request transmitted successfully.",
+            "copySuccess": "ACCESS_KEY copied to clipboard",
+            "failure": "TRANSMISSION_FAILURE",
+            "encrypting": "ENCRYPTING_PACKETS..."
+        },
+        "buttons": {
+            "back": "BACK",
+            "next": "NEXT_STEP",
+            "initiate": "INITIATE_DROP",
+            "secureClose": "SECURE_AND_CLOSE"
+        }
+    }
+}

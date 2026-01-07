@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight } from 'lucide-react';
 import MagneticButton from './MagneticButton';
 import useTextDecrypter from '../hooks/useTextDecrypter';
+import { useTranslation } from '../hooks/useTranslation';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -13,6 +14,7 @@ const Hero = () => {
     const shapesRef = useRef(null);
     const gridRef = useRef(null);
     const decodeText = useTextDecrypter();
+    const { t } = useTranslation();
 
     const images = useMemo(() => [
         { src: '/media/walpaper1.jpg', span: 'col-span-1 row-span-1' },
@@ -97,19 +99,18 @@ const Hero = () => {
                         <span
                             className="inline-block px-4 py-1 bg-electric-blue text-black font-black uppercase tracking-widest text-xs mb-4 border-2 border-black flat-shadow cursor-pointer"
                             onMouseEnter={decodeText}
-                            data-value="CURATED VISUALS"
+                            data-value={t('hero.badge')}
                         >
-                            CURATED VISUALS
+                            {t('hero.badge')}
                         </span>
                         <h1 className="text-[var(--text-fluid-h1)] font-black tracking-tighter leading-[0.9] uppercase italic">
-                            Visuals <br />
-                            <span className="text-electric-blue">With Soul.</span>
+                            {t('hero.titleLine1')} <br />
+                            <span className="text-electric-blue">{t('hero.titleLine2')}</span>
                         </h1>
                     </div>
 
                     <p className="hero-text text-gray-400 text-lg md:text-xl max-w-xl leading-snug font-medium italic">
-                        The definitive source for crystalline 4K anime curation.
-                        Manually verified, strictly no AI, pure human artistry.
+                        {t('hero.description')}
                     </p>
 
                     <div className="hero-text pt-4 flex flex-wrap gap-4">
@@ -117,13 +118,13 @@ const Hero = () => {
                             onClick={() => window.dispatchEvent(new CustomEvent('open-request-drawer'))}
                             className="bg-white text-black px-6 py-4 md:px-8 md:py-5 text-lg md:text-xl font-black uppercase border-4 border-black flat-shadow-blue hover:translate-x-[-4px] hover:translate-y-[-4px] hover:shadow-[12px_12px_0px_var(--color-electric-blue)] transition-all flex items-center gap-3 active:translate-x-0 active:translate-y-0 active:shadow-none w-full md:w-auto justify-center"
                         >
-                            Start Request <ArrowRight size={24} strokeWidth={3} />
+                            {t('hero.startRequest')} <ArrowRight size={24} strokeWidth={3} />
                         </MagneticButton>
                         <a
                             href="#process"
                             className="px-6 py-4 md:px-8 md:py-5 text-lg md:text-xl font-black uppercase border-4 border-white/20 hover:border-white transition-colors flex items-center italic justify-center w-full md:w-auto"
                         >
-                            How it works
+                            {t('hero.howItWorks')}
                         </a>
                     </div>
                 </div>
@@ -148,7 +149,7 @@ const Hero = () => {
 
             {/* Scroll Indicator - Flat style */}
             <div className="absolute bottom-10 left-10 flex flex-col items-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] rotate-90 origin-left ml-4 text-electric-blue">Scroll</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] rotate-90 origin-left ml-4 text-electric-blue">{t('hero.scroll')}</span>
                 <div className="w-1 h-20 bg-white/10 relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-1/2 bg-electric-blue animate-[scroll-hint_2s_ease-in-out_infinite]" />
                 </div>

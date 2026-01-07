@@ -1,16 +1,17 @@
-import React, { useLayoutEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useLayoutEffect, useRef, useMemo } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Maximize, ShieldCheck, Sparkles, Layers } from 'lucide-react';
+import { useTranslation } from '../hooks/useTranslation';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const Showcase = () => {
     const sectionRef = useRef(null);
-    const triggerRef = useRef(null);
     const contentRef = useRef(null);
     const deviceGroupRef = useRef(null);
     const badgesContainerRef = useRef(null);
+    const { t } = useTranslation();
 
     useLayoutEffect(() => {
         const ctx = gsap.context(() => {
@@ -90,11 +91,11 @@ const Showcase = () => {
     }, []);
 
     const features = useMemo(() => [
-        { icon: <Maximize size={32} />, title: "NATIVE 4K", color: "bg-electric-blue" },
-        { icon: <ShieldCheck size={32} />, title: "100% HUMAN", color: "bg-electric-purple" },
-        { icon: <Layers size={32} />, title: "MULTI-FORMAT", color: "bg-electric-green" },
-        { icon: <Sparkles size={32} />, title: "CURATED", color: "bg-white" }
-    ], []);
+        { icon: <Maximize size={32} />, title: t('showcase.features.native4k'), color: "bg-electric-blue" },
+        { icon: <ShieldCheck size={32} />, title: t('showcase.features.human'), color: "bg-electric-purple" },
+        { icon: <Layers size={32} />, title: t('showcase.features.multiFormat'), color: "bg-electric-green" },
+        { icon: <Sparkles size={32} />, title: t('showcase.features.curated'), color: "bg-white" }
+    ], [t]);
 
     return (
         <section ref={sectionRef} id="showcase" className="bg-render-black relative overflow-hidden min-h-screen border-b-4 border-black">
@@ -103,11 +104,11 @@ const Showcase = () => {
                 {/* Header Section */}
                 <div className="showcase-header text-center mb-16 relative z-20">
                     <span className="inline-block px-3 py-1 bg-white text-black font-black uppercase text-xs mb-4 border-2 border-black flat-shadow">
-                        GALLERY ENGINE v2.0
+                        {t('showcase.engine')}
                     </span>
                     <h1 className="text-[var(--text-fluid-h1)] font-black text-white italic uppercase leading-[0.85]">
-                        ANY FORMAT.<br />
-                        <span className="text-electric-blue">NO LIMITS.</span>
+                        {t('showcase.titleLine1')}<br />
+                        <span className="text-electric-blue">{t('showcase.titleLine2')}</span>
                     </h1>
                 </div>
 
@@ -132,7 +133,7 @@ const Showcase = () => {
                             <div className="w-2 h-2 rounded-full bg-white/20" />
                             <div className="w-2 h-2 rounded-full bg-white/20" />
                             <div className="w-2 h-2 rounded-full bg-white/20" />
-                            <div className="ml-auto text-[10px] font-black text-white/30 uppercase tracking-[0.2em] italic">schematic_view_4k</div>
+                            <div className="ml-auto text-[10px] font-black text-white/30 uppercase tracking-[0.2em] italic">{t('showcase.schematic')}</div>
                         </div>
                         <div className="flex-1 relative p-4">
                             <div className="absolute inset-0 border-4 border-electric-blue/20 m-4 pointer-events-none" />

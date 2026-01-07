@@ -1,0 +1,159 @@
+{
+    "nav": {
+        "start": "スタート",
+        "quality": "品質",
+        "showcase": "ショーケース",
+        "process": "プロセス",
+        "login": "ログイン",
+        "myRequests": "リクエスト",
+        "logout": "ログアウト",
+        "getAccess": "アクセス取得"
+    },
+    "footer": {
+        "line1": "RenderDrop.ukは個人の趣味プロジェクトです。",
+        "line2": "RenderDrop.comの3Dレンダリング会社とは関係ありません。",
+        "line3": "アニメと安いドメインが好きなだけです。"
+    },
+    "hero": {
+        "badge": "厳選されたビジュアル",
+        "titleLine1": "心揺さぶる",
+        "titleLine2": "ビジュアル。",
+        "description": "鮮明な4Kアニメキュレーションの決定版。手動確認、AI不使用、純粋な人間の芸術性。",
+        "startRequest": "リクエスト開始",
+        "howItWorks": "仕組み",
+        "scroll": "スクロール"
+    },
+    "visualProof": {
+        "engine": "検証エンジン",
+        "qualityLine1": "純粋な品質。",
+        "qualityLine2": "妥協なし。",
+        "description": "アーティファクト、ぼやけ、魂のないアルゴリズムの靄を取り除きます。",
+        "verified": "検証済み",
+        "verifiedDesc": "結晶のような4K • 人間による選別",
+        "slop": "粗悪品",
+        "slopDesc": "AIアーティファクト • 圧縮 • 一般的",
+        "liveComparison": "ライブ比較_01"
+    },
+    "showcase": {
+        "engine": "ギャラリーエンジン v2.0",
+        "titleLine1": "あらゆるフォーマット。",
+        "titleLine2": "制限なし。",
+        "features": {
+            "native4k": "ネイティブ4K",
+            "human": "100%人間",
+            "multiFormat": "マルチフォーマット",
+            "curated": "厳選"
+        },
+        "schematic": "回路図ビュー_4k"
+    },
+    "process": {
+        "titleLine1": "プロセス",
+        "titleLine2": "フロー_v3",
+        "steps": {
+            "1": {
+                "title": "送信",
+                "desc": "リクエストパラメータを送信。シリーズ、キャラクター、雰囲気。"
+            },
+            "2": {
+                "title": "深層検索",
+                "desc": "プライベートリポジトリやブティックアートサークルに潜入。"
+            },
+            "3": {
+                "title": "分析",
+                "desc": "アーティファクトの神経検査。100%人間による品質確認。"
+            },
+            "4": {
+                "title": "データドロップ",
+                "desc": "高解像度キュレーションパッケージの暗号化配信。"
+            }
+        },
+        "protocol": "プロトコル"
+    },
+    "beta": {
+        "title": "ベータフィードバック",
+        "placeholder": "バグを見つけた？アイデアがある？教えてください...",
+        "send": "フィードバック送信",
+        "sending": "送信中...",
+        "successTitle": "未来を築く。",
+        "successDesc": "入力ありがとうございます。"
+    },
+    "fab": {
+        "startRequest": "リクエスト開始"
+    },
+    "requestForm": {
+        "steps": {
+            "1": {
+                "title": "件名",
+                "nameLabel": "お名前",
+                "namePlaceholder": "オペレーター名",
+                "charLabel": "キャラクター名",
+                "charPlaceholder": "対象キャラクター",
+                "seriesLabel": "シリーズ / 出典",
+                "seriesPlaceholder": "出典アーカイブ"
+            },
+            "2": {
+                "title": "方法",
+                "sourcingLabel": "調達スタイルを選択",
+                "options": {
+                    "analog": {
+                        "label": "アナログ検索",
+                        "desc": "手動フィルムスキャン & 高粒子検索",
+                        "caution": "注意: 手動処理の遅延 (+3日)"
+                    },
+                    "digital": {
+                        "label": "デジタル抽出",
+                        "desc": "検証済みデジタルマスターアーカイブからの調達"
+                    }
+                }
+            },
+            "3": {
+                "title": "リンクプロトコル",
+                "emailBtn": "メール通信",
+                "socialBtn": "ソーシャル",
+                "emailLabel": "受信者アドレス",
+                "emailPlaceholder": "OPERATOR@ADDRESS.COM",
+                "platformLabel": "プラットフォームハブ",
+                "handleLabel": "アクセスハンドル",
+                "handlePlaceholder": "USER#0000"
+            },
+            "4": {
+                "title": "データノート",
+                "label": "SFW または NSFW? ('SAFE' または 'NOT SAFE' と入力)",
+                "placeholder": "必須: 進むには 'SAFE' または 'NOT SAFE' と入力してください。その他の指示はその後に記述してください。"
+            },
+            "5": {
+                "title": "承認",
+                "protocolParams": "NO_AI_PROTOCOL",
+                "protocolDesc": "RenderDropは100%人間が作成したアセットを保証します。生成AIなし。ニューラルアップスケーラーなし。純粋な技術。",
+                "confirm": "承認を確認",
+                "confirmDesc": "手作業によるアセット配信パイプライン"
+            },
+            "6": {
+                "title": "リクエスト受領証",
+                "labels": {
+                    "subject": "件名リンク",
+                    "operator": "オペレーター",
+                    "protocol": "プロトコル",
+                    "protocolValue": "セキュアドロップ",
+                    "keyLabel": "デジタルウォレットアクセスキー",
+                    "copyBtn": "アクセスキーをコピー",
+                    "warning": "警告: このキーは安全な場所に保管してください。アセットの取得に必要です。このキーはクリアテキストで保存されません。"
+                }
+            }
+        },
+        "validation": {
+            "protocolRequired": "プロトコル必須: 'SAFE' または 'NOT SAFE' と入力してください",
+            "sessionExpired": "セッションの有効期限が切れました。再度ログインしてください。",
+            "success": "リクエストが正常に送信されました。",
+            "copySuccess": "ACCESS_KEYがクリップボードにコピーされました",
+            "failure": "送信失敗",
+            "encrypting": "パケット暗号化中..."
+        },
+        "buttons": {
+            "back": "戻る",
+            "next": "次のステップ",
+            "initiate": "ドロップを開始",
+            "secureClose": "安全に閉じる"
+        }
+    }
+}

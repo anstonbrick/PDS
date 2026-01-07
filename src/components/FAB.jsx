@@ -1,7 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import { Sparkles } from 'lucide-react';
+import { useTranslation } from '../hooks/useTranslation';
 
 const FAB = () => {
+    const { t } = useTranslation();
+
     return (
         <button
             onClick={() => window.dispatchEvent(new CustomEvent('open-request-drawer'))}
@@ -9,7 +12,7 @@ const FAB = () => {
         >
             <div className="flex items-center gap-3">
                 <Sparkles size={28} strokeWidth={3} className="group-hover:rotate-45 transition-transform duration-300" />
-                <span className="font-black uppercase tracking-tighter italic text-xl hidden md:block">START_REQUEST</span>
+                <span className="font-black uppercase tracking-tighter italic text-xl hidden md:block">{t('fab.startRequest')}</span>
             </div>
         </button>
     );

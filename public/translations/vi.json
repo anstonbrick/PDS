@@ -1,0 +1,159 @@
+{
+    "nav": {
+        "start": "Bắt đầu",
+        "quality": "Chất lượng",
+        "showcase": "Trưng bày",
+        "process": "Quy trình",
+        "login": "Đăng nhập",
+        "myRequests": "Yêu cầu",
+        "logout": "Đăng xuất",
+        "getAccess": "Lấy quyền"
+    },
+    "footer": {
+        "line1": "RenderDrop.uk là dự án sở thích cá nhân。",
+        "line2": "Chúng tôi không liên kết với công ty 3D tại RenderDrop.com。",
+        "line3": "Chúng tôi chỉ thích anime và tên miền giá rẻ。"
+    },
+    "hero": {
+        "badge": "HÌNH ẢNH TUYỂN CHỌN",
+        "titleLine1": "Hình ảnh",
+        "titleLine2": "Có tâm hồn.",
+        "description": "Nguồn chính thức cho tuyển tập anime 4K sắc nét. Kiểm tra thủ công, hoàn toàn không AI, nghệ thuật thuần túy.",
+        "startRequest": "Gửi yêu cầu",
+        "howItWorks": "Cách hoạt động",
+        "scroll": "Cuộn"
+    },
+    "visualProof": {
+        "engine": "CÔNG CỤ XÁC MINH",
+        "qualityLine1": "CHẤT LƯỢNG THUẦN TÚY.",
+        "qualityLine2": "KHÔNG THỎA HIỆP.",
+        "description": "Chúng tôi loại bỏ các hiện vật, sự mờ nhòe và màn sương thuật toán vô hồn.",
+        "verified": "ĐÃ XÁC MINH",
+        "verifiedDesc": "4K Tinh Khiết • Người Chọn Lọc",
+        "slop": "RÁC",
+        "slopDesc": "Lỗi AI • Nén • Chung Chung",
+        "liveComparison": "SO_SÁNH_TRỰC_TIẾP_01"
+    },
+    "showcase": {
+        "engine": "CÔNG CỤ THƯ VIỆN v2.0",
+        "titleLine1": "MỌI ĐỊNH DẠNG.",
+        "titleLine2": "KHÔNG GIỚI HẠN.",
+        "features": {
+            "native4k": "4K GỐC",
+            "human": "100% CON NGƯỜI",
+            "multiFormat": "ĐA ĐỊNH DẠNG",
+            "curated": "TUYỂN CHỌN"
+        },
+        "schematic": "chế_độ_xem_sơ_đồ_4k"
+    },
+    "process": {
+        "titleLine1": "QUY TRÌNH",
+        "titleLine2": "LUỒNG_v3",
+        "steps": {
+            "1": {
+                "title": "TRUYỀN TẢI",
+                "desc": "Gửi thông số yêu cầu. Series, nhân vật và vibe."
+            },
+            "2": {
+                "title": "TÌM KIẾM SÂU",
+                "desc": "Thâm nhập các kho lưu trữ riêng tư và nhóm nghệ thuật nhỏ."
+            },
+            "3": {
+                "title": "PHÂN TÍCH",
+                "desc": "Kiểm tra thần kinh tìm lỗi. Chất lượng 100% do người kiểm duyệt."
+            },
+            "4": {
+                "title": "THẢ DỮ LIỆU",
+                "desc": "Giao hàng mã hóa gói tuyển chọn độ nét cao của bạn."
+            }
+        },
+        "protocol": "GIAO_THỨC"
+    },
+    "beta": {
+        "title": "Phản hồi Beta",
+        "placeholder": "Tìm thấy lỗi? Có ý tưởng? Hãy cho chúng tôi biết...",
+        "send": "Gửi phản hồi",
+        "sending": "Đang gửi...",
+        "successTitle": "Xây Dựng Tương Lai.",
+        "successDesc": "Cảm ơn ý kiến của bạn."
+    },
+    "fab": {
+        "startRequest": "BẮT ĐẦU_YÊU_CẦU"
+    },
+    "requestForm": {
+        "steps": {
+            "1": {
+                "title": "Chủ đề",
+                "nameLabel": "Tên của bạn",
+                "namePlaceholder": "TÊN NGƯỜI VẬN HÀNH",
+                "charLabel": "Tên nhân vật",
+                "charPlaceholder": "NHÂN VẬT MỤC TIÊU",
+                "seriesLabel": "Series / Nguồn",
+                "seriesPlaceholder": "KHO LƯU TRỮ NGUỒN"
+            },
+            "2": {
+                "title": "Phương pháp",
+                "sourcingLabel": "Chọn kiểu nguồn",
+                "options": {
+                    "analog": {
+                        "label": "TRUY XUẤT ANALOG",
+                        "desc": "Quét phim thủ công & truy xuất hạt cao",
+                        "caution": "CHÚ Ý: Độ trễ xử lý thủ công (+3 ngày)"
+                    },
+                    "digital": {
+                        "label": "TRÍCH XUẤT SỐ",
+                        "desc": "Nguồn từ các bản lưu trữ gốc kỹ thuật số đã được xác minh"
+                    }
+                }
+            },
+            "3": {
+                "title": "Giao thức liên kết",
+                "emailBtn": "GIAO TIẾP EMAIL",
+                "socialBtn": "GIAO TIẾP XÃ HỘI",
+                "emailLabel": "Địa chỉ người nhận",
+                "emailPlaceholder": "OPERATOR@ADDRESS.COM",
+                "platformLabel": "Trung tâm nền tảng",
+                "handleLabel": "Xử lý truy cập",
+                "handlePlaceholder": "NGƯỜI_DÙNG#0000"
+            },
+            "4": {
+                "title": "Ghi chú dữ liệu",
+                "label": "SFW hay NSFW? (GÕ \"SAFE\" HOẶC \"NOT SAFE\")",
+                "placeholder": "BẮT BUỘC: BẠN PHẢI GÕ 'SAFE' HOẶC 'NOT SAFE' ĐỂ TIẾP TỤC. Thêm hướng dẫn khác sau đó."
+            },
+            "5": {
+                "title": "Ủy quyền",
+                "protocolParams": "GIAO_THỨC_KHÔNG_AI",
+                "protocolDesc": "RenderDrop đảm bảo tài sản được tạo ra 100% bởi con người. Không có AI tạo sinh. Không nâng cấp thần kinh. Thủ công thuần túy.",
+                "confirm": "Xác nhận ủy quyền",
+                "confirmDesc": "Đường ống phân phối tài sản được tuyển chọn thủ công"
+            },
+            "6": {
+                "title": "Biên lai yêu cầu",
+                "labels": {
+                    "subject": "Liên kết chủ đề",
+                    "operator": "Người vận hành",
+                    "protocol": "Giao thức",
+                    "protocolValue": "THẢ_BẢO_MẬT",
+                    "keyLabel": "Khóa truy cập ví kỹ thuật số",
+                    "copyBtn": "SAO CHÉP KHÓA",
+                    "warning": "CẢNH BÁO: Lưu trữ khóa này ở vị trí an toàn. Điều này là cần thiết để lấy tài sản của bạn. Chúng tôi không lưu trữ khóa này dưới dạng văn bản rõ."
+                }
+            }
+        },
+        "validation": {
+            "protocolRequired": "YÊU CẦU GIAO THỨC: Gõ 'SAFE' hoặc 'NOT SAFE'",
+            "sessionExpired": "PHIÊN HẾT HẠN: Vui lòng đăng nhập lại.",
+            "success": "Yêu cầu đã được truyền tải thành công.",
+            "copySuccess": "ACCESS_KEY đã được sao chép vào bộ nhớ tạm",
+            "failure": "LỖI TRUYỀN TẢI",
+            "encrypting": "ĐANG MÃ HÓA GÓI..."
+        },
+        "buttons": {
+            "back": "QUAY LẠI",
+            "next": "BƯỚC TIẾP THEO",
+            "initiate": "BẮT ĐẦU THẢ",
+            "secureClose": "ĐÓNG & BẢO MẬT"
+        }
+    }
+}

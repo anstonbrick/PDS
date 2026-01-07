@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MoveHorizontal, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { useTranslation } from '../hooks/useTranslation';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -10,6 +11,7 @@ const VisualProof = () => {
     const containerRef = useRef(null);
     const isDragging = useRef(false);
     const rafId = useRef(null);
+    const { t } = useTranslation();
 
     const updatePosition = useCallback((clientX) => {
         if (!containerRef.current) return;
@@ -70,15 +72,15 @@ const VisualProof = () => {
                 <div className="flex flex-col md:flex-row items-end justify-between mb-12 gap-6">
                     <div>
                         <span className="inline-block px-3 py-1 bg-electric-purple text-black font-black uppercase text-sm mb-3 border-2 border-black flat-shadow">
-                            VERIFICATION ENGINE
+                            {t('visualProof.engine')}
                         </span>
                         <h2 className="text-[var(--text-fluid-h2)] font-black text-white italic uppercase leading-none">
-                            PURE QUALITY.<br />
-                            <span className="text-electric-blue">NO COMPROMISE.</span>
+                            {t('visualProof.qualityLine1')}<br />
+                            <span className="text-electric-blue">{t('visualProof.qualityLine2')}</span>
                         </h2>
                     </div>
                     <p className="text-gray-400 font-bold max-w-sm text-right uppercase italic leading-tight">
-                        We strip away the artifacts, the blurring, and the soulless algorithmic haze.
+                        {t('visualProof.description')}
                     </p>
                 </div>
 
@@ -98,10 +100,10 @@ const VisualProof = () => {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                         <div className="absolute bottom-4 right-4 md:bottom-10 md:right-10 text-right proof-label">
                             <div className="flex items-center justify-end gap-2 md:gap-3 mb-1 md:mb-2">
-                                <h3 className="text-xl md:text-5xl font-black text-white uppercase italic">VERIFIED</h3>
+                                <h3 className="text-xl md:text-5xl font-black text-white uppercase italic">{t('visualProof.verified')}</h3>
                                 <ShieldCheck className="w-5 h-5 md:w-10 md:h-10 text-electric-green" strokeWidth={3} />
                             </div>
-                            <p className="text-electric-blue font-black uppercase tracking-widest text-[10px] md:text-sm hidden md:block">Crystalline 4K • Human Curated</p>
+                            <p className="text-electric-blue font-black uppercase tracking-widest text-[10px] md:text-sm hidden md:block">{t('visualProof.verifiedDesc')}</p>
                         </div>
                     </div>
 
@@ -123,9 +125,9 @@ const VisualProof = () => {
                             <div className="absolute bottom-4 left-4 md:bottom-10 md:left-10 proof-label">
                                 <div className="flex items-center gap-2 md:gap-3 mb-1 md:mb-2">
                                     <AlertTriangle className="w-5 h-5 md:w-10 md:h-10 text-red-500" strokeWidth={3} />
-                                    <h3 className="text-xl md:text-5xl font-black text-gray-500 uppercase italic">SLOP</h3>
+                                    <h3 className="text-xl md:text-5xl font-black text-gray-500 uppercase italic">{t('visualProof.slop')}</h3>
                                 </div>
-                                <p className="text-red-500 font-black uppercase tracking-widest text-[10px] md:text-sm hidden md:block">AI Artifacts • Compressed • Generic</p>
+                                <p className="text-red-500 font-black uppercase tracking-widest text-[10px] md:text-sm hidden md:block">{t('visualProof.slopDesc')}</p>
                             </div>
                         </div>
                     </div>
@@ -142,7 +144,7 @@ const VisualProof = () => {
 
                     {/* Compare Badge */}
                     <div className="absolute top-6 left-6 z-20 bg-black text-white border-2 border-white px-4 py-2 text-xs font-black uppercase tracking-tighter">
-                        LIVE_COMPARISON_01
+                        {t('visualProof.liveComparison')}
                     </div>
                 </div>
             </div>
