@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Copy, ArrowLeft, Clock, CheckCircle, Truck, XCircle, Package } from 'lucide-react';
 import Navbar from './Navbar';
 
@@ -59,9 +59,15 @@ const UserDashboard = () => {
         }
     };
 
-    const copyToClipboard = (text) => {
-        navigator.clipboard.writeText(text);
-        alert('Access Key Copied!');
+    const copyToClipboard = async (text) => {
+        try {
+            await navigator.clipboard.writeText(text);
+            alert('Access Key Copied!');
+        } catch (err) {
+            console.error('Failed to copy:', err);
+            // Fallback for non-secure contexts or errors
+            alert(`Access Key: ${text}`);
+        }
     };
 
     return (
@@ -139,24 +145,12 @@ const UserDashboard = () => {
                                         </div>
                                     </div>
 
-                                    <a
-                                        href={`/tracking?key=${req.access_key}`} // Assuming tracking page accepts query param or user pastes it
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            // Since tracking logic is likely component based, 
-                                            // we might need to navigate or just copy key. 
-                                            // The DeliveryTracking component expects URL usage or similar?
-                                            // App.jsx route is /tracking.
-                                            // Let's just point to /tracking. 
-                                            // Actually DeliveryTracking might not read query params.
-                                            // For now, let's just use copy key.
-                                            copyToClipboard(req.access_key);
-                                            navigate('/tracking');
-                                        }}
+                                    <Link
+                                        to={`/tracking?key=${req.access_key}`}
                                         className="bg-white/5 border border-white/20 text-white px-6 py-3 font-bold uppercase tracking-wider hover:bg-white hover:text-black transition-all text-center self-start md:self-center"
                                     >
                                         Track Status
-                                    </a>
+                                    </Link>
                                 </div>
                             </div>
                         ))}
