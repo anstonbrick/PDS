@@ -138,7 +138,8 @@ authDb.serialize(() => {
             const seedCodes = [
                 ['PDS2026', 'Legacy Default Code', null, null],
                 ['ADMIN', 'System Admin Code', null, null],
-                ['VIP', 'VIP Access Code', 100, '2027-01-01']
+                ['VIP', 'VIP Access Code', 100, '2027-01-01'],
+                ['OPENBETA', 'Open Beta Access', null, null]
             ];
             seedCodes.forEach(([code, desc, limit, exp]) => {
                 authDb.run(`INSERT OR IGNORE INTO referral_codes (code, description, usage_limit, expiration_date, created_by) VALUES (?, ?, ?, ?, 'system')`, [code, desc, limit, exp]);

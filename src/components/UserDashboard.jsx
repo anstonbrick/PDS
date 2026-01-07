@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Copy, ArrowLeft, Clock, CheckCircle, Truck, XCircle, Package } from 'lucide-react';
 import Navbar from './Navbar';
+import { useToast } from './Toast';
 
 const UserDashboard = () => {
+    const { addToast } = useToast();
     const navigate = useNavigate();
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -28,13 +30,14 @@ const UserDashboard = () => {
                 setRequests(data);
             } catch (err) {
                 setError(err.message);
+                addToast(err.message, 'error');
             } finally {
                 setLoading(false);
             }
         };
 
         fetchRequests();
-    }, [navigate]);
+    }, [navigate, addToast]); // Added addToast dependecy
 
     const getStatusColor = (status) => {
         switch (status) {
@@ -62,11 +65,11 @@ const UserDashboard = () => {
     const copyToClipboard = async (text) => {
         try {
             await navigator.clipboard.writeText(text);
-            alert('Access Key Copied!');
+            addToast('Access Key Copied!', 'success');
         } catch (err) {
             console.error('Failed to copy:', err);
             // Fallback for non-secure contexts or errors
-            alert(`Access Key: ${text}`);
+            addToast(`Access Key: ${text}`, 'info');
         }
     };
 

@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import gsap from 'gsap';
+import { X } from 'lucide-react';
+import { useToast } from '../Toast';
 
-const AuthScreen = ({ onLoginSuccess }) => {
+const AuthScreen = ({ onLoginSuccess, onClose }) => {
     const [isLogin, setIsLogin] = useState(true);
     const [formData, setFormData] = useState({
         username: '',
@@ -39,6 +41,8 @@ const AuthScreen = ({ onLoginSuccess }) => {
             .to(formRef.current, { opacity: 1, y: 0, duration: 0.3 });
     };
 
+    const { addToast } = useToast(); // Add hook usage
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -62,14 +66,14 @@ const AuthScreen = ({ onLoginSuccess }) => {
                 // Success
                 if (isLogin) {
                     onLoginSuccess({ ...data.user, token: data.token });
+                    addToast('Welcome back, Operator.', 'success');
                 } else {
-                    // After signup, maybe auto login or ask to login
-                    // For now, auto switch to login or just login directly
-                    alert('Signup successful! Please log in.');
+                    addToast('Registration successful. Please log in.', 'success');
                     setIsLogin(true);
                 }
             } else {
                 setError(data.error || 'Authentication failed');
+                addToast(data.error || 'Authentication failed', 'error');
             }
         } catch (err) {
             setError('Server error. Please ensure backend is running.');
@@ -88,6 +92,16 @@ const AuthScreen = ({ onLoginSuccess }) => {
                 ref={containerRef}
                 className="relative z-10 w-full max-w-md bg-black/50 backdrop-blur-xl border border-white/10 p-8 rounded-2xl shadow-2xl"
             >
+                {/* Close Button */}
+                {onClose && (
+                    <button
+                        onClick={onClose}
+                        className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"
+                    >
+                        <X size={24} />
+                    </button>
+                )}
+
                 <h2 className="text-3xl font-bold text-center mb-2 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
                     {isLogin ? 'WELCOME BACK' : 'INITIATE ACCESS'}
                 </h2>

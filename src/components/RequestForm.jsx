@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { X, ArrowRight, Check, AlertCircle } from 'lucide-react';
+import { useToast } from '../Toast';
 
 const RequestForm = () => {
+    const { addToast } = useToast();
     const [isOpen, setIsOpen] = useState(false);
     const [step, setStep] = useState(1);
     const [accessKey, setAccessKey] = useState('');
@@ -76,7 +78,7 @@ const RequestForm = () => {
         if (step === 4) {
             const val = formData.notes.toUpperCase();
             if (!val.includes("SAFE") && !val.includes("NOT SAFE")) {
-                alert("PROTOCOL REQUIRED: Please type 'SAFE' or 'NOT SAFE' in the text area to conduct safety verification.");
+                addToast("PROTOCOL REQUIRED: Type 'SAFE' or 'NOT SAFE'", 'error');
                 return;
             }
         }
@@ -112,6 +114,7 @@ const RequestForm = () => {
 
         if (!token) {
             setSubmissionError('SESSION_EXPIRED: Please login again.');
+            addToast('Session expired. Please login again.', 'error');
             setIsLoading(false);
             return;
         }
@@ -152,9 +155,11 @@ const RequestForm = () => {
             // critical: Set key only after successful save
             setAccessKey(key);
             setStep(6);
+            addToast('Request transmitted successfully.', 'success');
         } catch (error) {
             console.error('Request Error:', error);
             setSubmissionError(error.message);
+            addToast(error.message, 'error');
         } finally {
             setIsLoading(false);
         }
@@ -162,7 +167,7 @@ const RequestForm = () => {
 
     const handleCopyKey = () => {
         navigator.clipboard.writeText(accessKey);
-        alert("ACCESS_KEY copied to clipboard");
+        addToast("ACCESS_KEY copied to clipboard", 'success');
     };
 
     return (

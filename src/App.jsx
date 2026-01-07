@@ -52,12 +52,23 @@ const LandingPage = () => {
     return saved ? JSON.parse(saved) : null;
   });
 
-  const [showLoading, setShowLoading] = React.useState(!!user);
+  const [showLoading, setShowLoading] = React.useState(false); // Initially defined as false, triggered on login
+  const [showAuth, setShowAuth] = React.useState(false);
+
+  // Check auth on mount to prompt only if desired (Optional: we start public now)
+  // If we wanted to prompt login on first visit: useEffect(() => { if(!user) setShowAuth(true) }, []);
 
   const handleLoginSuccess = (userData) => {
     localStorage.setItem('pds_user', JSON.stringify(userData));
     setUser(userData);
     setShowLoading(true); // Trigger loading screen after successful login
+    setShowAuth(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('pds_user');
+    setUser(null);
+    window.location.reload(); // Simple reload to clear state cleanly
   };
 
   const handleLoadingComplete = () => {
@@ -86,8 +97,7 @@ const LandingPage = () => {
   }, []);
 
   useLayoutEffect(() => {
-    if (!user) return; // Don't run animations if on auth screen
-
+    // Enable animations for public users too
     // Performance: Optimize scroll progress with reduced scrub
     gsap.to('#scroll-progress', {
       scaleX: 1,
@@ -114,16 +124,7 @@ const LandingPage = () => {
       clearInterval(refreshInterval);
       ScrollTrigger.getAll().forEach(st => st.kill());
     };
-  }, [handleMouseMove, user]);
-
-  if (!user) {
-    return (
-      <div className="bg-render-black min-h-screen text-white overflow-hidden font-sans">
-        <div className="grain" />
-        <AuthScreen onLoginSuccess={handleLoginSuccess} />
-      </div>
-    );
-  }
+  }, [handleMouseMove]);
 
   return (
     <div className="bg-render-black min-h-screen text-white selection:bg-electric-blue selection:text-black overflow-x-hidden grid-bg">
@@ -134,7 +135,19 @@ const LandingPage = () => {
 
       {showLoading && <LoadingScreen onComplete={handleLoadingComplete} />}
 
-      <Navbar />
+      {/* Auth Modal */}
+      {showAuth && (
+        <AuthScreen
+          onLoginSuccess={handleLoginSuccess}
+          onClose={() => setShowAuth(false)}
+        />
+      )}
+
+      <Navbar
+        user={user}
+        onLoginClick={() => setShowAuth(true)}
+        onLogout={handleLogout}
+      />
 
       <main>
         <Hero />
@@ -162,37 +175,41 @@ const LandingPage = () => {
   );
 };
 
+import ToastProvider from './components/Toast';
+
 // --- ROOT APP COMPONENT (Routing) ---
 function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Main Site */}
-        <Route path="/" element={<LandingPage />} />
+    <ToastProvider>
+      <Router>
+        <Routes>
+          {/* Main Site */}
+          <Route path="/" element={<LandingPage />} />
 
-        {/* Admin Routes */}
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+          {/* Admin Routes */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
 
-        {/* User Dashboard */}
-        <Route path="/dashboard" element={
-          <Suspense fallback={<LoadingFallback />}>
-            <UserDashboard />
-          </Suspense>
-        } />
+          {/* User Dashboard */}
+          <Route path="/dashboard" element={
+            <Suspense fallback={<LoadingFallback />}>
+              <UserDashboard />
+            </Suspense>
+          } />
 
-        {/* Tracking Route */}
-        <Route path="/tracking" element={
-          <Suspense fallback={<LoadingFallback />}>
-            <DeliveryTracking />
-          </Suspense>
-        } />
+          {/* Tracking Route */}
+          <Route path="/tracking" element={
+            <Suspense fallback={<LoadingFallback />}>
+              <DeliveryTracking />
+            </Suspense>
+          } />
 
-        {/* Catch-all: Redirect to Home */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Router>
+          {/* Catch-all: Redirect to Home */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+    </ToastProvider>
   );
 }
 
